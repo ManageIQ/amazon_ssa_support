@@ -5,7 +5,10 @@ require_relative 'aws_ssa_commons'
 
 describe AmazonSsaSupport::EvmQueue do
 
-  before(:each) { $log = mocked_log }
+  before(:each) { 
+    $log = mocked_log 
+    config_aws_client_stub
+  }
 
   let(:args) do
     { :evm_bucket    => 's3_bucket',
@@ -69,38 +72,5 @@ describe AmazonSsaSupport::EvmQueue do
     it "get reply bucket" do
       expect(subject.reply_bucket).to be_instance_of(Aws::S3::Bucket)
     end
-
-  end
-
-  context "Request methods" do
-    let(:ec_id) { "i-1234567" }
-    it "send_extract_request" do
-      expect(subject.send_extract_request(ec_id)).to be_truthy
-    end
-
-    it "send_exit_request" do
-      expect(subject.send_exit_request(ec_id)).to be_truthy
-    end
-
-    it "send_reboot_request" do
-      expect(subject.send_reboot_request(ec_id)).to be_truthy
-    end
-
-    it "send_shutdown_request" do
-      expect(subject.send_shutdown_request(ec_id)).to be_truthy
-    end
-  end
-
-  context "Reply methods" do
-    let(:req) do
-      {  request_kype: 'extract', 
-         sqs_msg: { :message_id => 'msg_01' } 
-      } 
-    end
-
-    #it "send_ers_reply" do
-    #  expect(subject.send_ers_reply(req)).to be_truthy
-    #end
-
   end
 end

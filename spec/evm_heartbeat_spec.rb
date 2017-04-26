@@ -4,7 +4,14 @@ require_relative 'spec_helper'
 require_relative 'aws_ssa_commons'
 
 describe AmazonSsaSupport::EvmHeartbeat do
-  before(:each) { $log = mocked_log }
+  before(:each) { 
+    $log = mocked_log 
+    Aws.config[:s3] = {
+      stub_responses: {
+        list_buckets: { buckets: [ { name: 'miq_test' } ] }
+      }
+    }
+  }
 
   let(:args) do
     { :extractor_id       => 'instance_id',

@@ -1,3 +1,16 @@
+def config_aws_client_stub
+  Aws.config[:sqs] = {
+    stub_responses: {
+      list_queues: { queue_urls: [ 'https:://sqs.ap-northeast-1.awazonaws.com/123456789/test' ] }
+    }
+  }
+  Aws.config[:s3] = {
+    stub_responses: {
+      list_buckets: { buckets: [ { name: 's3_bucket' } ] }
+    }
+  }
+end
+
 def mocked_log
   obj = double
   allow(obj).to receive(:info)

@@ -4,7 +4,10 @@ require_relative 'spec_helper'
 require_relative 'aws_ssa_commons'
 
 describe AmazonSsaSupport::EvmBucket do
-  before(:each) { $log = mocked_log }
+  before(:each) { 
+    $log = mocked_log 
+    config_aws_client_stub
+  }
 
   let(:args) do
     { :evm_bucket => 'bucket_name', :reply_prefix => 'miq_' }
