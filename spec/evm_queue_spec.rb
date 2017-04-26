@@ -58,10 +58,6 @@ describe AmazonSsaSupport::EvmQueue do
       expect(subject.sqs).to be_instance_of(Aws::SQS::Resource)
     end
 
-    it "require s3" do
-      expect(subject.s3).to be_instance_of(Aws::S3::Resource)
-    end
-
     it "get request queue" do
       expect(subject.request_queue).to be_instance_of(Aws::SQS::Queue)
     end

@@ -4,18 +4,18 @@ module AmazonSsaSupport
   class InstanceMetadata
     
     def initialize(version='latest')
-      @baseUrl    = 'http://169.254.169.254/'
-      @version    = version
-      @url      = "#{@baseUrl}#{@version}/"
-      @metadataUrl  = "#{@url}meta-data/"
-      @httpClient    = HTTPClient.new
+      @baseUrl     = 'http://169.254.169.254/'
+      @version     = version
+      @url         = "#{@baseUrl}#{@version}/"
+      @metadataUrl = "#{@url}meta-data/"
+      @httpClient  = HTTPClient.new
     end
     
     def version=(val)
       @version = val
       @url = "#{@baseUrl}#{@version}/"
       @metadataUrl = "#{@url}meta-data/"
-      return val
+      val
     end
     
     def versions
@@ -37,7 +37,7 @@ module AmazonSsaSupport
     def do_get(url, method)
       rv = @httpClient.get(url)
       raise "#{self.class.name}.#{method}: #{url} #{rv.reason} (#{rv.status})" if rv.status != 200
-      return rv.content
+      rv.content
     end
     
   end

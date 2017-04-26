@@ -8,47 +8,45 @@ module AmazonSsaSupport
   class EvmQueue
     
     attr_reader :evm_bucket_name, :evm_region, :request_queue_name, :reply_queue_name, :reply_bucket_name, :extractor_id
-    attr_reader :request_queue, :reply_queue, :reply_bucket, :reply_prefix
-    attr_reader :sqs, :s3
+    attr_reader :request_queue, :reply_queue, :reply_bucket, :reply_prefix, :sqs
     
     def initialize(args)
-      @extractor_id        = args[:extractor_id]
-      @evm_bucket_name     = args[:evm_bucket]
-      @evm_region          = args[:region] || DEFAULT_REGION
-      @request_queue_name  = args[:request_queue] || DEFAULT_REQUEST_QUEUE
-      @reply_queue_name    = args[:reply_queue] || DEFAULT_REPLY_QUEUE
-      @reply_prefix        = args[:reply_prefix] || DEFAULT_REPLY_PREFIX
+      @extractor_id       = args[:extractor_id]
+      @evm_bucket_name    = args[:evm_bucket]
+      @evm_region         = args[:region] || DEFAULT_REGION
+      @request_queue_name = args[:request_queue] || DEFAULT_REQUEST_QUEUE
+      @reply_queue_name   = args[:reply_queue] || DEFAULT_REPLY_QUEUE
+      @reply_prefix       = args[:reply_prefix] || DEFAULT_REPLY_PREFIX
 
       unless evm_bucket_name && extractor_id
         raise ArgumentError, "extractor_id & evm_bucket_name must have to be specified."
       end
       
-      $log.info "#{self.class.name}: request_queue_name = #{@request_queue_name}"
-      $log.info "#{self.class.name}: reply_queue_name   = #{@reply_queue_name}"
-      $log.info "#{self.class.name}: evm_bucket_name    = #{@evm_bucket_name}"
-      $log.info "#{self.class.name}: extractor_id       = #{@extractor_id}"
+      $log.debug("#{self.class.name}: request_queue_name = #{@request_queue_name}")
+      $log.debug("#{self.class.name}: reply_queue_name   = #{@reply_queue_name}")
+      $log.debug("#{self.class.name}: evm_bucket_name    = #{@evm_bucket_name}")
+      $log.debug("#{self.class.name}: extractor_id       = #{@extractor_id}")
       
       @sqs = args[:sqs] || Aws::SQS::Resource.new(region: @evm_region)
-      @s3  = args[:s3]  || Aws::S3::Resource.new(region: @evm_region)
       
       begin
         # TODO: use FIFO queue
         @request_queue = @sqs.get_queue_by_name(queue_name: @request_queue_name)
-        $log.info "#{self.class.name}: Found request queue #{@request_queue_name}"
+        $log.debug("#{self.class.name}: Found request queue #{@request_queue_name}")
       rescue Aws::SQS::Errors::NonExistentQueue => err
-        $log.info "#{self.class.name}: Request queue #{@request_queue_name} does not exist, creating..."
+        $log.debug("#{self.class.name}: Request queue #{@request_queue_name} does not exist, creating...")
         @request_queue = @sqs.create_queue(queue_name: @request_queue_name)
-        $log.info "#{self.class.name}: Created request queue #{@request_queue_name}"
+        $log.debug("#{self.class.name}: Created request queue #{@request_queue_name}")
       end
       
       begin
         # TODO: use FIFO queue
         @reply_queue = @sqs.get_queue_by_name(queue_name: @reply_queue_name)
-        $log.info "#{self.class.name}: Found reply queue #{@reply_queue_name}"
+        $log.debug("#{self.class.name}: Found reply queue #{@reply_queue_name}")
       rescue Aws::SQS::Errors::NonExistentQueue => err
-        $log.info "Reply queue #{@reply_queue_name} does not exist, creating..."
+        $log.debug("Reply queue #{@reply_queue_name} does not exist, creating...")
         @reply_queue = @sqs.create_queue(queue_name: @reply_queue_name)
-        $log.info "#{self.class.name}: Created reply queue #{@reply_queue_name}"
+        $log.debug("#{self.class.name}: Created reply queue #{@reply_queue_name}")
       end
       
       @reply_bucket = EvmBucket.get(args)
@@ -112,7 +110,7 @@ module AmazonSsaSupport
     def get_request(msg)
       req = YAML.load(msg.body)
       req[:sqs_msg] = msg
-      return req
+      req
     end
     private :get_request
     
@@ -161,7 +159,7 @@ module AmazonSsaSupport
         s3_obj_name = @reply_prefix + req_id
         s3_obj = @reply_bucket.object(s3_obj_name)
         unless s3_obj.exists?
-          $log.warn "#{self.class.name}.#{__method__}: Reply object #{s3_obj_name} does not exist"
+          $log.warn("#{self.class.name}.#{__method__}: Reply object #{s3_obj_name} does not exist")
           msg.delete
           return nil
         end
@@ -174,7 +172,7 @@ module AmazonSsaSupport
         body[:sqs_msg] = msg
         return body
       else
-        $log.warn "#{self.class.name}.#{__method__}: Unrecognized reply type #{body[:reply_type]}"
+        $log.warn("#{self.class.name}.#{__method__}: Unrecognized reply type #{body[:reply_type]}")
         return nil
       end
     end
@@ -189,12 +187,12 @@ module AmazonSsaSupport
     #
     def send_ers_reply(req)
       ers_reply  = {}
-      ers_reply[:reply_type]    = req[:request_type]
-      ers_reply[:extractor_id]  = @extractor_id
-      ers_reply[:request_id]    = req[:original_req_id] || req[:sqs_msg].message_id
+      ers_reply[:reply_type]   = req[:request_type]
+      ers_reply[:extractor_id] = @extractor_id
+      ers_reply[:request_id]   = req[:original_req_id] || req[:sqs_msg].message_id
       
       msg = @reply_queue.send_message(message_body: YAML.dump(ers_reply))
-      $log.info "#{self.class.name}.#{__method__}: sent reply (#{ers_reply[:reply_type]}) #{@reply_queue_name}:#{msg.message_id} to #{@request_queue_name}:#{ers_reply[:request_id]}"
+      $log.debug("#{self.class.name}.#{__method__}: sent reply (#{ers_reply[:reply_type]}) #{@reply_queue_name}:#{msg.message_id} to #{@request_queue_name}:#{ers_reply[:request_id]}")
     end
     
     #
@@ -222,18 +220,18 @@ module AmazonSsaSupport
     # }
     #
     class SSAReply
-      def initialize(req, eeq)
-        @eeq = eeq
+      def initialize(req, evmq)
+        @evmq = evmq
         
-        @req_id                        = req[:sqs_msg].message_id
-        @req_obj_name                  = @eeq.reply_prefix + @req_id
-        @extract_reply                 = {}
-        @extract_reply[:reply_type]    = req[:request_type]
-        @extract_reply[:categories]    = {}
-        @extract_reply[:ec2_id]        = req[:ec2_id]
-        @extract_reply[:job_id]        = req[:job_id]
-        @extract_reply[:extractor_id]  = @eeq.extractor_id
-        @extract_reply[:start_time]    = Time.now.utc.to_s # XXX keep this a Time object?
+        @req_id                       = req[:sqs_msg].message_id
+        @req_obj_name                 = @evmq.reply_prefix + @req_id
+        @extract_reply                = {}
+        @extract_reply[:reply_type]   = req[:request_type]
+        @extract_reply[:categories]   = {}
+        @extract_reply[:ec2_id]       = req[:ec2_id]
+        @extract_reply[:job_id]       = req[:job_id]
+        @extract_reply[:extractor_id] = @evmq.extractor_id
+        @extract_reply[:start_time]   = Time.now.utc.to_s # XXX keep this a Time object?
       end
       
       def error=(val)
@@ -246,12 +244,12 @@ module AmazonSsaSupport
       
       def reply
         @extract_reply[:end_time] = Time.now.utc.to_s # XXX keep this a Time object?
-        @eeq.reply_bucket.object(@req_obj_name).put(body: YAML.dump(@extract_reply), content_type: "text/plain")
+        @evmq.reply_bucket.object(@req_obj_name).put(body: YAML.dump(@extract_reply), content_type: "text/plain")
         reply_msg = {}
         reply_msg[:request_id] = @req_id
         reply_msg[:reply_type] = @extract_reply[:reply_type]
-        msg = @eeq.reply_queue.send_message(message_body: YAML.dump(reply_msg))
-        $log.info "#{self.class.name}.#{__method__}: sent reply (#{@extract_reply[:reply_type]}) #{@eeq.reply_queue_name}:#{msg.message_id} to #{@eeq.request_queue_name}:#{@req_id}"
+        msg = @evmq.reply_queue.send_message(message_body: YAML.dump(reply_msg))
+        $log.debug("#{self.class.name}.#{__method__}: sent reply (#{@extract_reply[:reply_type]}) #{@evmq.reply_queue_name}:#{msg.message_id} to #{@evmq.request_queue_name}:#{@req_id}")
       end
     end
     

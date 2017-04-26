@@ -19,8 +19,8 @@ require_relative 'evm_queue_extractor'
 require_relative 'rolling_s3_outputter'
 
 class LogFormatter < Log4r::Formatter
-  @@prog          = File.basename(__FILE__, ".*")
-  @@extractor_id  = ''
+  @@prog         = File.basename(__FILE__, ".*")
+  @@extractor_id = ''
   def format(event)
     return event.data.chomp + "\n" if event.level == Log4r::COPY
     
@@ -31,7 +31,7 @@ class LogFormatter < Log4r::Formatter
   end
   
   def self.extractor_id=(val)
-    @@extractor_id  = val
+    @@extractor_id = val
   end
 
   private
@@ -42,17 +42,17 @@ class LogFormatter < Log4r::Formatter
   end
 end
 
-LOG_LEVELS  = {
-  'DEBUG'       => Log4r::DEBUG,
-  'INFO'        => Log4r::INFO,
-  'WARN'        => Log4r::WARN,
-  'ERROR'       => Log4r::ERROR,
-  'FATAL'       => Log4r::FATAL,
-  Log4r::DEBUG  => "DEBUG",
-  Log4r::INFO   => "INFO",
-  Log4r::WARN   => "WARN",
-  Log4r::ERROR  => "ERROR",
-  Log4r::FATAL  => "FATAL"
+LOG_LEVELS = {
+  'DEBUG'      => Log4r::DEBUG,
+  'INFO'       => Log4r::INFO,
+  'WARN'       => Log4r::WARN,
+  'ERROR'      => Log4r::ERROR,
+  'FATAL'      => Log4r::FATAL,
+  Log4r::DEBUG => "DEBUG",
+  Log4r::INFO  => "INFO",
+  Log4r::WARN  => "WARN",
+  Log4r::ERROR => "ERROR",
+  Log4r::FATAL => "FATAL"
 }
 
 cmdName       = File.basename($0)
@@ -108,10 +108,10 @@ begin
   #
   # Logging args.
   #
-  aws_args[:log_level]  = log_level_str unless log_level_str.nil? # command line override
-  log_level        = LOG_LEVELS[aws_args[:log_level]]
-  max_log_size      ||= aws_args[:max_log_size] || 1024 * 256
-  logFile          = File.join('/opt/miq/log', 'extract.log')
+  aws_args[:log_level] = log_level_str unless log_level_str.nil? # command line override
+  log_level = LOG_LEVELS[aws_args[:log_level]]
+  max_log_size ||= aws_args[:max_log_size] || 1024 * 256
+  logFile = File.join('/opt/miq/log', 'extract.log')
   log_args = {
     :formatter => LogFormatter,
     :filename  => logFile,
@@ -128,7 +128,7 @@ begin
   lfo = Log4r::RollingS3Outputter.new('log_s3', log_args)
   lfo.only_at(Log4r::DEBUG, Log4r::INFO, Log4r::WARN, Log4r::ERROR, Log4r::FATAL, Log4r::COPY)
   $log.add 'log_s3'
-  at_exit  { lfo.flush }
+  at_exit { lfo.flush }
 
   if log_to_stderr
     eso = Log4r::StderrOutputter.new('err_console', :formatter=>LogFormatter)
@@ -139,8 +139,8 @@ begin
   #
   # Initialize and enter the heartbeat loop.
   #
-  eeh = Amazon::SSA::EvmHeartbeat.new(aws_args)
-  eeh.start_heartbeat_loop
+  ehb = Amazon::SSA::EvmHeartbeat.new(aws_args)
+  ehb.start_heartbeat_loop
   
   #
   # Initialize the extractor and enter the main extraction loop.
@@ -154,17 +154,17 @@ begin
   case exit_code
   when :exit
     $log.info "Exiting"
-    eeh.stop_heartbeat_loop
+    ehb.stop_heartbeat_loop
     lfo.flush
     exit 0
   when :reboot
     $log.info "Rebooting"
-    eeh.stop_heartbeat_loop
+    ehb.stop_heartbeat_loop
     lfo.flush
     `nohup shutdown -t0 -r now &`
   when :shutdown
     $log.info "Shutting down"
-    eeh.stop_heartbeat_loop
+    ehb.stop_heartbeat_loop
     lfo.flush
     `nohup shutdown -t0 -h now &`
   end

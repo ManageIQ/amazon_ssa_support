@@ -8,12 +8,11 @@ describe AmazonSsaSupport::MiqEC2EbsInstance do
     @eb2_obj = mocked_ebs_instance('i-mocked-1')
     @host    = mocked_ebs_instance('i-mocked-2')
     @ec2     = mocked_ec2
-    @args    = {}
     #$log     = mocked_log
     $log     = Logger.new('spec.log')
   end
 
-  subject { described_class.new(@eb2_obj, @host, @ec2, @args) }
+  subject { described_class.new(@eb2_obj, @host, @ec2) }
 
   context "Inheritance" do
     it "is subclass of Amazon::MiqEC2VmBase" do
@@ -53,21 +52,21 @@ describe AmazonSsaSupport::MiqEC2EbsInstance do
     end
   end
 
-  context "zone_nmae" do
+  context "zone_name" do
     it "defines a zone_name method" do
       expect(subject).to respond_to(:zone_name)
     end
   end
 
-  context "miqVm" do
+  context "miq_vm" do
     it "defines a miqVm method" do
-      expect(subject).to respond_to(:miqVm)
+      expect(subject).to respond_to(:miq_vm)
     end
   end
 
-  context "getCfg" do
+  context "get_cfg" do
     it "defines a getCfg method" do
-      expect(subject).to respond_to(:getCfg)
+      expect(subject).to respond_to(:get_cfg)
     end
   end
 

@@ -6,24 +6,23 @@ module Log4r
   class RollingS3Outputter < FileOutputter
     attr_reader :count, :maxsize
 
-    def initialize(_name, hash={})
+    def initialize(name, hash={})
       @count           = 0
       @aws_args        = hash[:aws_args]
-      @evm_bucket_name = @aws_args[:evm_bucket]
       @s3_log_prefix   = File.join(@aws_args[:log_prefix], @aws_args[:extractor_id])
       @evm_bucket      = AmazonSsaSupport::EvmBucket.get(@aws_args)
             
-      _maxsize = (hash[:maxsize] or hash['maxsize']).to_i
-      if _maxsize.class != Fixnum
-        raise TypeError, "Argument 'maxsize' must be an Fixnum", caller
+      maxsize = (hash[:maxsize] or hash['maxsize']).to_i
+      if maxsize.class != Integer
+        raise TypeError, "Argument 'maxsize' must be an Integer", caller
       end
-      if _maxsize == 0
+      if maxsize == 0
         raise TypeError, "Argument 'maxsize' must be > 0", caller
       end
-      @maxsize = _maxsize
+      @maxsize = maxsize
       @datasize = 0
       
-      super(_name, hash.merge({:create => true, :trunc => true}))
+      super(name, hash.merge({:create => true, :trunc => true}))
     end
     
     def flush
@@ -40,10 +39,10 @@ module Log4r
       roll if @datasize > @maxsize
     end
     
-    def newS3OblectKey
+    def s3_object_key
       log_id = Time.now.utc.strftime("%Y-%m-%dT%H:%M:%S")
-      seq = "0" * (6 - @count.to_s.length) + @count.to_s
-      key = File.join(@s3_log_prefix, "#{log_id}-#{seq}.log")
+      seq    = "0" * (6 - @count.to_s.length) + @count.to_s
+      key    = File.join(@s3_log_prefix, "#{log_id}-#{seq}.log")
       @count += 1
       Logger.log_internal {"S3 obj key #{key} created"}
       return key
@@ -52,7 +51,7 @@ module Log4r
     def roll
       @out.close
       return if @datasize == 0
-      key = newS3OblectKey
+      key = s3_object_key
       @evm_bucket.object(key).upload_file(@filename)
       # truncate the file
       @out = File.new(@filename, "w")
@@ -91,20 +90,20 @@ if __FILE__ == $0
   })
   
   outputterArgs = {
-    :formatter  => MyFormatter,
+    :formatter => MyFormatter,
     :filename  => "/tmp/TestSize.log",
-    :maxsize  => 16000,
+    :maxsize   => 16000,
     :aws_args  => userData
   }
 
-  s3Log = Log4r::Logger.new 'S3LOG'
-  s3o = Log4r::RollingS3Outputter.new('S3LOG', outputterArgs)
-  s3Log.outputters = s3o
-  s3Log.level = Log4r::DEBUG
+  s3_log            = Log4r::Logger.new 'S3LOG'
+  s3_outputter      = Log4r::RollingS3Outputter.new('S3LOG', outputterArgs)
+  s3_log.outputters = s3_outputter
+  s3_log.level      = Log4r::DEBUG
 
   10000.times { |t|
-    s3Log.info "blah #{t}"
+    s3_log.info "blah #{t}"
   }
-  s3o.flush
+  s3_outputter.flush
 
 end
