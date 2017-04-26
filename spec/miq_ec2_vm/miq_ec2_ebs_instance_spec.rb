@@ -8,8 +8,7 @@ describe AmazonSsaSupport::MiqEC2EbsInstance do
     @eb2_obj = mocked_ebs_instance('i-mocked-1')
     @host    = mocked_ebs_instance('i-mocked-2')
     @ec2     = mocked_ec2
-    #$log     = mocked_log
-    $log     = Logger.new('spec.log')
+    $log     = mocked_log
   end
 
   subject { described_class.new(@eb2_obj, @host, @ec2) }
