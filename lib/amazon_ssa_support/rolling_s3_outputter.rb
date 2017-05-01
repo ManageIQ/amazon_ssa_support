@@ -13,11 +13,8 @@ module Log4r
       @evm_bucket      = AmazonSsaSupport::EvmBucket.get(@aws_args)
             
       maxsize = (hash[:maxsize] or hash['maxsize']).to_i
-      if maxsize.class != Integer
-        raise TypeError, "Argument 'maxsize' must be an Integer", caller
-      end
-      if maxsize == 0
-        raise TypeError, "Argument 'maxsize' must be > 0", caller
+      if maxsize >= 2 ** 62 || maxsize == 0
+        raise TypeError, "Argument 'maxsize' must be > 0 and < 2 ** 62", caller
       end
       @maxsize = maxsize
       @datasize = 0

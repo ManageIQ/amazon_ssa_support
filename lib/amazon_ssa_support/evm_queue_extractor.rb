@@ -51,7 +51,7 @@ module AmazonSsaSupport
       @evmq.delete_request(req)
       extract_reply = @evmq.new_reply(req)
       begin
-        ec2_vm = MiqEC2Vm.new(req[:ec2_id], @my_instance, @ec2, @aws_args)
+        ec2_vm = MiqEC2Vm.new(req[:ec2_id], @my_instance, @ec2)
         categories = req[:categories] || CATEGORIES
         $log.debug("categories: #{categories.inspect}")
         $log.info("MiqEC2Vm: #{ec2_vm.class.name} - categories = [ #{categories.join(', ')} ]")
@@ -65,7 +65,7 @@ module AmazonSsaSupport
         $log.error(err.backtrace.join("\n"))
       ensure
         extract_reply.reply
-        ec2_vm.unmount
+        ec2_vm.unmount if ec2_vm
       end
     end
     

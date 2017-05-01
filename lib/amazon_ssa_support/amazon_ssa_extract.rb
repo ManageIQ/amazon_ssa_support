@@ -1,7 +1,3 @@
-#$:.push("#{File.dirname(__FILE__)}/..")
-
-#require 'rubygems'
-#require 'bundler/setup'
 require 'log4r'
 require 'log4r/configurator'
 
@@ -94,12 +90,12 @@ begin
   #
   # Get info and args associated with this extractor instance.
   #
-  im = Amazon::SSA::InstanceMetadata.new
-  extractor_id = im.metadata('instance-id')
-  aws_args = eval(im.userdata)
+  im                      = Amazon::SSA::InstanceMetadata.new
+  extractor_id            = im.metadata('instance-id')
+  aws_args                = eval(im.userdata)
   aws_args[:extractor_id] = extractor_id
-  aws_args[:evm_bucket] = "evm-prototype"
-  reg = aws_args[:region] || 'us-west-2'
+  aws_args[:evm_bucket]   = "evm-prototype"
+  reg                     = aws_args[:region] || 'us-west-2'
   
   aws_args[:ec2] = Aws::EC2::Resource.new(region: reg)
   aws_args[:sqs] = Aws::SQS::Resource.new(region: reg)
@@ -109,9 +105,9 @@ begin
   # Logging args.
   #
   aws_args[:log_level] = log_level_str unless log_level_str.nil? # command line override
-  log_level = LOG_LEVELS[aws_args[:log_level]]
-  max_log_size ||= aws_args[:max_log_size] || 1024 * 256
-  logFile = File.join('/opt/miq/log', 'extract.log')
+  log_level            = LOG_LEVELS[aws_args[:log_level]]
+  max_log_size       ||= aws_args[:max_log_size] || 1024 * 256
+  logFile              = File.join('/opt/miq/log', 'extract.log')
   log_args = {
     :formatter => LogFormatter,
     :filename  => logFile,

@@ -24,8 +24,9 @@ module AmazonSsaSupport
     
     def metadata(path)
       rv = do_get(@metadataUrl + path, "metadata")
-      return rv.split("\n") if rv.include?("\n")
-      return rv
+      data = rv.split("\n")
+      $log.warn("Metadata #{path} contains multiple attributes: #{data}, return the first one.") if data.size > 1 && $log
+      return data[0]
     end
     
     def userdata
