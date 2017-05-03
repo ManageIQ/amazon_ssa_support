@@ -4,14 +4,14 @@ require_relative 'spec_helper'
 require_relative 'aws_ssa_commons'
 
 describe AmazonSsaSupport::EvmHeartbeat do
-  before(:each) { 
-    $log = mocked_log 
+  before(:each) do
+    $log = mocked_log
     Aws.config[:s3] = {
-      stub_responses: {
-        list_buckets: { buckets: [ { name: 'miq_test' } ] }
+      :stub_responses => {
+        :list_buckets => { :buckets => [{ :name => 'miq_test' }] }
       }
     }
-  }
+  end
 
   let(:args) do
     { :extractor_id       => 'instance_id',
@@ -19,14 +19,12 @@ describe AmazonSsaSupport::EvmHeartbeat do
       :reply_prefix       => 'rep-prefix',
       :heartbeat_prefix   => 'hb-prefix',
       :heartbeat_thread   => 'hb-thread',
-      :heartbeat_interval => 'hb-interval',
-    }
+      :heartbeat_interval => 'hb-interval' }
   end
 
   subject { described_class.new(args) }
 
   context "Parameters" do
-
     it "require a parameter" do
       expect { described_class.new }.to raise_error(ArgumentError)
     end
@@ -39,7 +37,5 @@ describe AmazonSsaSupport::EvmHeartbeat do
     it "require heartbeat_prefix" do
       expect(subject.heartbeat_prefix).to eq("hb-prefix")
     end
-
   end
 end
-

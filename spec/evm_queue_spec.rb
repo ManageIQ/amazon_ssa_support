@@ -4,16 +4,14 @@ require_relative 'spec_helper'
 require_relative 'aws_ssa_commons'
 
 describe AmazonSsaSupport::EvmQueue do
-
-  before(:each) { 
-    $log = mocked_log 
+  before(:each) do 
+    $log = mocked_log
     config_aws_client_stub
-  }
+  end 
 
   let(:args) do
     { :evm_bucket    => 's3_bucket',
-      :extractor_id  => 'instance-id'
-    }
+      :extractor_id  => 'instance-id' }
   end
 
   subject { described_class.new(args) }

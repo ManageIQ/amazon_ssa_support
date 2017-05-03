@@ -47,4 +47,3 @@ describe AmazonSsaSupport::MiqEC2Vm do
     end
   end
 end
-

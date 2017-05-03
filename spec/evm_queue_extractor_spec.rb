@@ -19,6 +19,5 @@ describe AmazonSsaSupport::EvmQueueExtractor do
       args.delete(:extractor_id)
       expect { described_class.new(args) }.to raise_error(ArgumentError)
     end
-
   end
 end

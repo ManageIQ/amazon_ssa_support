@@ -1,12 +1,12 @@
 def config_aws_client_stub
   Aws.config[:sqs] = {
-    stub_responses: {
-      list_queues: { queue_urls: [ 'https:://sqs.ap-northeast-1.awazonaws.com/123456789/test' ] }
+    :stub_responses => {
+      :list_queues => { :queue_urls => ['https:://sqs.ap-northeast-1.awazonaws.com/123456789/test'] }
     }
   }
   Aws.config[:s3] = {
-    stub_responses: {
-      list_buckets: { buckets: [ { name: 's3_bucket' } ] }
+    :stub_responses => {
+      :list_buckets => { :buckets => [{ :name => 's3_bucket' }] }
     }
   }
 end
@@ -22,7 +22,7 @@ end
 
 def mocked_ebs_instance(id)
   mapping1 = double
-  allow(mapping1).to receive_message_chain("ebs.volume_id") { 'vol_1' } 
+  allow(mapping1).to receive_message_chain("ebs.volume_id") { 'vol_1' }
 
   mapping2 = double
   allow(mapping2).to receive_message_chain("ebs.volume_id") { 'vol_2' }
@@ -38,7 +38,7 @@ end
 
 def mocked_ebs_image(id)
   mapping1 = double
-  allow(mapping1).to receive_message_chain("ebs.snapshot_id") { 'snap_1' } 
+  allow(mapping1).to receive_message_chain("ebs.snapshot_id") { 'snap_1' }
   mapping2 = double
   allow(mapping2).to receive_message_chain("ebs.snapshot_id") { 'snap_2' }
 
@@ -53,7 +53,7 @@ end
 
 def mocked_ec2
   obj = double
-  allow(obj).to receive_message_chain("client.wait_until") 
+  allow(obj).to receive_message_chain("client.wait_until")
   allow(obj).to receive(:create_snapshot).and_return(mocked_snapshot("snap-mocked-1"))
   allow(obj).to receive(:snapshot).and_return(mocked_snapshot("snap-mocked-2"))
   allow(obj).to receive(:create_volume).and_return(mocked_volume("vol-mocked-1"))

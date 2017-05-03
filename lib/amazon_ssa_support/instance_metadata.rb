@@ -2,44 +2,44 @@ require 'httpclient'
 
 module AmazonSsaSupport
   class InstanceMetadata
-    
-    def initialize(version='latest')
-      @baseUrl     = 'http://169.254.169.254/'
-      @version     = version
-      @url         = "#{@baseUrl}#{@version}/"
-      @metadataUrl = "#{@url}meta-data/"
-      @httpClient  = HTTPClient.new
+
+    def initialize(version = 'latest')
+      @base_url     = 'http://169.254.169.254/'
+      @version      = version
+      @url          = "#{@base_url}#{@version}/"
+      @matadata_url = "#{@url}meta-data/"
+      @http_client  = HTTPClient.new
     end
-    
+
     def version=(val)
-      @version = val
-      @url = "#{@baseUrl}#{@version}/"
-      @metadataUrl = "#{@url}meta-data/"
+      @version      = val
+      @url          = "#{@base_url}#{@version}/"
+      @metadata_url = "#{@url}meta-data/"
       val
     end
-    
+
     def versions
-      do_get(@baseUrl, "versions").split("\n")
+      do_get(@base_url, "versions").split("\n")
     end
-    
+
     def metadata(path)
-      rv = do_get(@metadataUrl + path, "metadata")
+      rv = do_get(@metadata_url + path, "metadata")
       data = rv.split("\n")
       $log.warn("Metadata #{path} contains multiple attributes: #{data}, return the first one.") if data.size > 1 && $log
-      return data[0]
+      data[0]
     end
-    
+
     def userdata
       do_get(@url + "user-data", "user_data")
     end
-    
+
     private
-    
+
     def do_get(url, method)
-      rv = @httpClient.get(url)
+      rv = @http_client.get(url)
       raise "#{self.class.name}.#{method}: #{url} #{rv.reason} (#{rv.status})" if rv.status != 200
       rv.content
     end
-    
+
   end
 end

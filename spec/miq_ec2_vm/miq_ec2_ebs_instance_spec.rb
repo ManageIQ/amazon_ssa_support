@@ -47,7 +47,7 @@ describe AmazonSsaSupport::MiqEC2EbsInstance do
 
   context "block_device_keys" do
     it "return ids" do
-      expect(subject.ebs_ids).to eq(['vol_1', 'vol_2'])
+      expect(subject.ebs_ids).to eq(%w(vol_1 vol_2))
     end
   end
 
@@ -63,9 +63,9 @@ describe AmazonSsaSupport::MiqEC2EbsInstance do
     end
   end
 
-  context "get_cfg" do
-    it "defines a getCfg method" do
-      expect(subject).to respond_to(:get_cfg)
+  context "create_cfg" do
+    it "defines a create_cfg method" do
+      expect(subject).to respond_to(:create_cfg)
     end
   end
 
@@ -77,14 +77,14 @@ describe AmazonSsaSupport::MiqEC2EbsInstance do
       expect(subject.snapshots.size).to eq(1)
     end
   end
-  
+ 
   context ".create_snapshot" do
     it "create a snapshot" do
       expect(subject.create_snapshot("vol-mocked-1").id).to eq(mocked_snapshot("snap-mocked-1").id)
       expect(subject.snapshots.size).to eq(1)
     end
   end
-  
+ 
   context ".unmap_volume" do
     it "unmap a volume" do
       allow(subject).to receive(:zone_name).and_return('us-west-2')
@@ -97,5 +97,4 @@ describe AmazonSsaSupport::MiqEC2EbsInstance do
       expect(subject.snapshots).to be_empty
     end
   end
-
 end

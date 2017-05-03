@@ -4,10 +4,10 @@ require_relative 'spec_helper'
 require_relative 'aws_ssa_commons'
 
 describe AmazonSsaSupport::EvmBucket do
-  before(:each) { 
-    $log = mocked_log 
+  before(:each) do
+    $log = mocked_log
     config_aws_client_stub
-  }
+  end
 
   let(:args) do
     { :evm_bucket => 'bucket_name', :reply_prefix => 'miq_' }
@@ -22,13 +22,11 @@ describe AmazonSsaSupport::EvmBucket do
   end
 
   it "passes when evm_bucket is specified" do
-    expect{ described_class.get(args) }
+    expect { described_class.get(args) }
   end
 
   it "fails when evm_bucket is not specified" do
     args.delete(:evm_bucket)
-    expect{ described_class.get(args) }.to raise_error(ArgumentError)
+    expect { described_class.get(args) }.to raise_error(ArgumentError)
   end
-
 end
-

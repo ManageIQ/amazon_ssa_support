@@ -2,26 +2,26 @@ require "log4r/outputter/fileoutputter"
 require "log4r/staticlogger"
 
 module Log4r
-  
+
   class RollingS3Outputter < FileOutputter
     attr_reader :count, :maxsize
 
-    def initialize(name, hash={})
+    def initialize(name, hash = {})
       @count           = 0
       @aws_args        = hash[:aws_args]
       @s3_log_prefix   = File.join(@aws_args[:log_prefix], @aws_args[:extractor_id])
       @evm_bucket      = AmazonSsaSupport::EvmBucket.get(@aws_args)
-            
-      maxsize = (hash[:maxsize] or hash['maxsize']).to_i
-      if maxsize >= 2 ** 62 || maxsize == 0
+
+      maxsize = (hash[:maxsize] || hash['maxsize']).to_i
+      if maxsize >= 2**62 || maxsize.zero?
         raise TypeError, "Argument 'maxsize' must be > 0 and < 2 ** 62", caller
       end
       @maxsize = maxsize
       @datasize = 0
-      
-      super(name, hash.merge({:create => true, :trunc => true}))
+
+      super(name, hash.merge(:create => true, :trunc => true))
     end
-    
+
     def flush
       roll
     end
@@ -35,19 +35,19 @@ module Log4r
       super
       roll if @datasize > @maxsize
     end
-    
+
     def s3_object_key
       log_id = Time.now.utc.strftime("%Y-%m-%dT%H:%M:%S")
       seq    = "0" * (6 - @count.to_s.length) + @count.to_s
       key    = File.join(@s3_log_prefix, "#{log_id}-#{seq}.log")
       @count += 1
-      Logger.log_internal {"S3 obj key #{key} created"}
-      return key
+      Logger.log_internal { "S3 obj key #{key} created" }
+      key
     end
 
     def roll
       @out.close
-      return if @datasize == 0
+      return if @datasize.zero?
       key = s3_object_key
       @evm_bucket.object(key).upload_file(@filename)
       # truncate the file
@@ -55,52 +55,5 @@ module Log4r
       @datasize = 0
     end
   end # class RollingS32Outputter
-  
+
 end # module Log4r
-
-if __FILE__ == $0
-  require 'rubygems'
-  require "log4r"
-  require 'aws-sdk'
-  require_relative 'tools/ExtractUserData'
-    
-  class MyFormatter < Log4r::Formatter
-    def format(event)
-      "#{Log4r::LNAMES[event.level]} [#{datetime}]: " +
-      (event.data.kind_of?(String) ? event.data : event.data.inspect) + "\n"
-    end
-
-    private
-
-    def datetime
-      time = Time.now.utc
-      time.strftime("%Y-%m-%dT%H:%M:%S.") << "%06d" % time.usec
-    end
-  end
-  
-  userData = ExtractUserData::user_data
-  userData[:extractor_id] = 'some-id'
-  
-  AWS.config({
-    :access_key_id     => userData[:account_info][:access_key_id],
-    :secret_access_key => userData[:account_info][:secret_access_key]
-  })
-  
-  outputterArgs = {
-    :formatter => MyFormatter,
-    :filename  => "/tmp/TestSize.log",
-    :maxsize   => 16000,
-    :aws_args  => userData
-  }
-
-  s3_log            = Log4r::Logger.new 'S3LOG'
-  s3_outputter      = Log4r::RollingS3Outputter.new('S3LOG', outputterArgs)
-  s3_log.outputters = s3_outputter
-  s3_log.level      = Log4r::DEBUG
-
-  10000.times { |t|
-    s3_log.info "blah #{t}"
-  }
-  s3_outputter.flush
-
-end
