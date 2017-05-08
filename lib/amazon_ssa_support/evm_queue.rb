@@ -188,7 +188,7 @@ module AmazonSsaSupport
       ers_reply = {}
       ers_reply[:reply_type]   = req[:request_type]
       ers_reply[:extractor_id] = @extractor_id
-      ers_reply[:request_id]   = req[:original_req_id] || req[:sqs_msg].message_id
+      ers_reply[:request_id]   = req[:original_req_id]
 
       msg = @reply_queue.send_message(message_body: YAML.dump(ers_reply))
       $log.debug("#{self.class.name}.#{__method__}: sent reply (#{ers_reply[:reply_type]}) #{@reply_queue_name}:#{msg.message_id} to #{@request_queue_name}:#{ers_reply[:request_id]}")
