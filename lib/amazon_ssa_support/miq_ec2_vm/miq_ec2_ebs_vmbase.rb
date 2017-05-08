@@ -56,7 +56,7 @@ module AmazonSsaSupport
       cfg = create_cfg
       cfg.each_line { |l| $log.debug("    #{l.chomp}") } if $log.debug?
 
-      return(@miq_vm = MiqVm.new(cfg))
+      @miq_vm = MiqVm.new(cfg)
     end
 
     def create_cfg

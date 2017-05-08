@@ -151,7 +151,6 @@ begin
     $log.info "Exiting"
     ehb.stop_heartbeat_loop
     lfo.flush
-#    exit 0
   when :reboot
     $log.info "Rebooting"
     ehb.stop_heartbeat_loop

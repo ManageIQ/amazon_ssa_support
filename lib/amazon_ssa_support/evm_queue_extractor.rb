@@ -6,8 +6,7 @@ require_relative 'evm_queue'
 
 module AmazonSsaSupport
   class EvmQueueExtractor
-
-    CATEGORIES = ["accounts", "services", "software", "system"]
+    CATEGORIES = %w(accounts services software system)
     attr_reader :my_instance, :evmq
 
     def initialize(aws_args)
@@ -89,6 +88,5 @@ module AmazonSsaSupport
       @ec2.instances[req[:extractor_id]].exists?
     end
     private :req_target_exists?
-
   end
 end

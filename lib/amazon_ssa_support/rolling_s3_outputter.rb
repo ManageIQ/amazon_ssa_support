@@ -2,7 +2,6 @@ require "log4r/outputter/fileoutputter"
 require "log4r/staticlogger"
 
 module Log4r
-
   class RollingS3Outputter < FileOutputter
     attr_reader :count, :maxsize
 
@@ -55,5 +54,4 @@ module Log4r
       @datasize = 0
     end
   end # class RollingS32Outputter
-
 end # module Log4r

@@ -6,7 +6,6 @@ require_relative 'evm_bucket'
 
 module AmazonSsaSupport
   class EvmHeartbeat
-
     attr_reader :extractor_id, :heartbeat_prefix
     attr_reader :heartbeat_thread, :heartbeat_interval
 
@@ -33,13 +32,13 @@ module AmazonSsaSupport
 
     def start_heartbeat_loop
       return unless @heartbeat_thread.nil?
-      $log.debug("#{name}.#{__method__}: starting heartbeat loop (#{object_id})")
+      $log.debug("#{self.class.name}.#{__method__}: starting heartbeat loop (#{object_id})")
       @heartbeat_thread = Thread.new do
         while @do_heartbeat
           begin
-            self.heartbeat
+            heartbeat
           rescue StandardError => err
-            $log.warn("#{name}.#{__method__}: #{err}")
+            $log.warn("#{self.class.name}.#{__method__}: #{err}")
             $log.warn(err.backtrace.join("\n"))
           end
           sleep @heartbeat_interval

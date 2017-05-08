@@ -77,14 +77,14 @@ describe AmazonSsaSupport::MiqEC2EbsInstance do
       expect(subject.snapshots.size).to eq(1)
     end
   end
- 
+
   context ".create_snapshot" do
     it "create a snapshot" do
       expect(subject.create_snapshot("vol-mocked-1").id).to eq(mocked_snapshot("snap-mocked-1").id)
       expect(subject.snapshots.size).to eq(1)
     end
   end
- 
+
   context ".unmap_volume" do
     it "unmap a volume" do
       allow(subject).to receive(:zone_name).and_return('us-west-2')

@@ -2,7 +2,6 @@ require_relative 'evm_common'
 
 module AmazonSsaSupport
   module EvmBucket
-
     def self.get(arg_hash)
       raise ArgumentError, "evm_bucket must be specified." if arg_hash[:evm_bucket].nil?
 

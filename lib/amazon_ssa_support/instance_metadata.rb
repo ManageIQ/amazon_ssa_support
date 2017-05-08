@@ -2,7 +2,6 @@ require 'httpclient'
 
 module AmazonSsaSupport
   class InstanceMetadata
-
     def initialize(version = 'latest')
       @base_url     = 'http://169.254.169.254/'
       @version      = version
@@ -40,6 +39,5 @@ module AmazonSsaSupport
       raise "#{self.class.name}.#{method}: #{url} #{rv.reason} (#{rv.status})" if rv.status != 200
       rv.content
     end
-
   end
 end

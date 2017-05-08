@@ -6,7 +6,6 @@ require_relative 'evm_bucket'
 
 module AmazonSsaSupport
   class EvmQueue
-
     attr_reader :evm_bucket_name, :evm_region, :request_queue_name, :reply_queue_name, :reply_bucket_name, :extractor_id
     attr_reader :request_queue, :reply_queue, :reply_bucket, :reply_prefix, :sqs
 
@@ -252,6 +251,5 @@ module AmazonSsaSupport
         $log.debug("#{self.class.name}.#{__method__}: sent reply (#{@extract_reply[:reply_type]}) #{@evmq.reply_queue_name}:#{msg.message_id} to #{@evmq.request_queue_name}:#{@req_id}")
       end
     end
-
   end
 end
