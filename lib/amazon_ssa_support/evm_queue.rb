@@ -107,7 +107,7 @@ module AmazonSsaSupport
     end
 
     def get_request(msg)
-      req = YAML.load(msg.body)
+      req = YAML.safe_load(msg.body)
       req[:sqs_msg] = msg
       req
     end
@@ -118,7 +118,7 @@ module AmazonSsaSupport
     #
     def requeue_request(req)
       msg = req[:sqs_msg]
-      body = YAML.load(msg.body)
+      body = YAML.safe_load(msg.body)
       if body[:original_request_id]
         @request_queue.send_message(message_body: msg.body, delay_seconds: 10)
       else
@@ -150,7 +150,7 @@ module AmazonSsaSupport
     end
 
     def get_reply(msg)
-      body = YAML.load(msg.body)
+      body = YAML.safe_load(msg.body)
 
       case body[:reply_type]
       when :extract
@@ -162,7 +162,7 @@ module AmazonSsaSupport
           msg.delete
           return nil
         end
-        reply_data = YAML.load(s3_obj.read)
+        reply_data = YAML.safe_load(s3_obj.read)
         reply_data[:request_id] = req_id
         reply_data[:sqs_msg] = msg
         s3_obj.delete

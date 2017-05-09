@@ -6,7 +6,7 @@ require_relative 'evm_queue'
 
 module AmazonSsaSupport
   class EvmQueueExtractor
-    CATEGORIES = %w(accounts services software system)
+    CATEGORIES = %w(accounts services software system).freeze
     attr_reader :my_instance, :evmq
 
     def initialize(aws_args)
