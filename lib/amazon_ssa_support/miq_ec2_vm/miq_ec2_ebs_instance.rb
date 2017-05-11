@@ -18,9 +18,9 @@ module AmazonSsaSupport
 
     def create_volume(id)
       $log.debug("    Creating snapshot of instance volume #{id}")
-      snap = @ec2.create_snapshot(volume_id: id, description: "EVM extract snapshot for instance: #{@ec2_obj.id}")
+      snap = @ec2.create_snapshot(volume_id: id, description: "MIQ extract snapshot for instance: #{@ec2_obj.id}")
       snap.wait_until_completed
-      snap.create_tags(tags: [{key: 'Name', value: 'EVM extract snapshot'}])
+      snap.create_tags(tags: [{key: 'Name', value: 'MIQ extract snapshot'}])
       $log.debug("    Creating snapshot of instance volume #{id} DONE snap_id = #{snap.id}")
       @snapshots << snap
       super(snap.id)

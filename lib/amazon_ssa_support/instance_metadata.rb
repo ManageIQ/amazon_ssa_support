@@ -6,7 +6,7 @@ module AmazonSsaSupport
       @base_url     = 'http://169.254.169.254/'
       @version      = version
       @url          = "#{@base_url}#{@version}/"
-      @matadata_url = "#{@url}meta-data/"
+      @metadata_url = "#{@url}meta-data/"
       @http_client  = HTTPClient.new
     end
 

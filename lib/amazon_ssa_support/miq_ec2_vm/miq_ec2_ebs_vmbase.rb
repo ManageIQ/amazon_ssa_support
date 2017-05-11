@@ -76,9 +76,9 @@ module AmazonSsaSupport
       return vol_id if ebs_image?
 
       $log.debug("    Creating snapshot of instance volume #{vol_id}")
-      snap = @ec2.create_snapshot(volume_id: vol_id, description: "EVM extract snapshot for instance: #{@ec2_obj.id}")
+      snap = @ec2.create_snapshot(volume_id: vol_id, description: "MIQ extract snapshot for instance: #{@ec2_obj.id}")
       snap.wait_until_completed
-      snap.create_tags(tags: [{key: 'Name', value: 'EVM extract snapshot'}])
+      snap.create_tags(tags: [{key: 'Name', value: 'MIQ extract snapshot'}])
       $log.debug("    Creating snapshot of instance volume #{vol_id} DONE snap_id = #{snap.id}")
       @snapshots << snap
       snap
@@ -95,8 +95,8 @@ module AmazonSsaSupport
       sleep 2
       @ec2.client.wait_until(:volume_available, volume_ids: [volume.id])
 
-      volume.create_tags(tags: [{ key: 'Name', value: 'EVM extract volume'},
-                                { key: 'Description', value: "EVM extract volume for image: #{@ec2_obj.id}"}])
+      volume.create_tags(tags: [{ key: 'Name', value: 'MIQ extract volume'},
+                                { key: 'Description', value: "MIQ extract volume for image: #{@ec2_obj.id}"}])
 
       $log.debug("    Creating volume based on #{snap_id} DONE")
       @volumes << volume

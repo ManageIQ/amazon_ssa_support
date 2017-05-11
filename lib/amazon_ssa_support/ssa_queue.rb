@@ -1,32 +1,32 @@
 require 'yaml'
 require 'aws-sdk'
 
-require_relative 'evm_common'
-require_relative 'evm_bucket'
+require_relative 'ssa_common'
+require_relative 'ssa_bucket'
 
 module AmazonSsaSupport
-  class EvmQueue
-    attr_reader :evm_bucket_name, :evm_region, :request_queue_name, :reply_queue_name, :reply_bucket_name, :extractor_id
+  class SsaQueue
+    attr_reader :ssa_bucket_name, :ssa_region, :request_queue_name, :reply_queue_name, :reply_bucket_name, :extractor_id
     attr_reader :request_queue, :reply_queue, :reply_bucket, :reply_prefix, :sqs
 
     def initialize(args)
       @extractor_id       = args[:extractor_id]
-      @evm_bucket_name    = args[:evm_bucket]
-      @evm_region         = args[:region] || DEFAULT_REGION
+      @ssa_bucket_name    = args[:ssa_bucket]
+      @ssa_region         = args[:region] || DEFAULT_REGION
       @request_queue_name = args[:request_queue] || DEFAULT_REQUEST_QUEUE
       @reply_queue_name   = args[:reply_queue] || DEFAULT_REPLY_QUEUE
       @reply_prefix       = args[:reply_prefix] || DEFAULT_REPLY_PREFIX
 
-      unless evm_bucket_name && extractor_id
-        raise ArgumentError, "extractor_id & evm_bucket_name must have to be specified."
+      unless ssa_bucket_name && extractor_id
+        raise ArgumentError, "extractor_id & ssa_bucket_name must have to be specified."
       end
 
       $log.debug("#{self.class.name}: request_queue_name = #{@request_queue_name}")
       $log.debug("#{self.class.name}: reply_queue_name   = #{@reply_queue_name}")
-      $log.debug("#{self.class.name}: evm_bucket_name    = #{@evm_bucket_name}")
+      $log.debug("#{self.class.name}: ssa_bucket_name    = #{@ssa_bucket_name}")
       $log.debug("#{self.class.name}: extractor_id       = #{@extractor_id}")
 
-      @sqs = args[:sqs] || Aws::SQS::Resource.new(region: @evm_region)
+      @sqs = args[:sqs] || Aws::SQS::Resource.new(region: @ssa_region)
 
       begin
         # TODO: use FIFO queue
@@ -48,7 +48,7 @@ module AmazonSsaSupport
         $log.debug("#{self.class.name}: Created reply queue #{@reply_queue_name}")
       end
 
-      @reply_bucket = EvmBucket.get(args)
+      @reply_bucket = SsaBucket.get(args)
     end
 
     ##################
@@ -198,15 +198,15 @@ module AmazonSsaSupport
     # Instantiate a new extract reply object for the extractor.
     #
     def new_reply(req)
-      SSAReply.new(req, self)
+      SsaReply.new(req, self)
     end
 
     #
     # extract_reply = {
     #  :reply_type    => :extract
     #   :ec2_id      => <The ec2 id of the image/instance>,
-    #  :job_id      => <The id of the evm job requesting the extraction>,
-    #  :extractor_id  => <The id of the evm extractor instance performing the extract>
+    #  :job_id      => <The id of the ssa job requesting the extraction>,
+    #  :extractor_id  => <The id of the ssa extractor instance performing the extract>
     #   :start_time    => <The time the extraction started>,
     #   :end_time    => <The time the extraction completed>,
     #   :error      => <Error text and stack trace - if there was an error>,
@@ -218,18 +218,18 @@ module AmazonSsaSupport
     #   }
     # }
     #
-    class SSAReply
-      def initialize(req, evmq)
-        @evmq = evmq
+    class SsaReply
+      def initialize(req, ssaq)
+        @ssaq = ssaq
 
         @req_id                       = req[:sqs_msg].message_id
-        @req_obj_name                 = @evmq.reply_prefix + @req_id
+        @req_obj_name                 = @ssaq.reply_prefix + @req_id
         @extract_reply                = {}
         @extract_reply[:reply_type]   = req[:request_type]
         @extract_reply[:categories]   = {}
         @extract_reply[:ec2_id]       = req[:ec2_id]
         @extract_reply[:job_id]       = req[:job_id]
-        @extract_reply[:extractor_id] = @evmq.extractor_id
+        @extract_reply[:extractor_id] = @ssaq.extractor_id
         @extract_reply[:start_time]   = Time.now.utc.to_s # XXX keep this a Time object?
       end
 
@@ -243,12 +243,12 @@ module AmazonSsaSupport
 
       def reply
         @extract_reply[:end_time] = Time.now.utc.to_s # XXX keep this a Time object?
-        @evmq.reply_bucket.object(@req_obj_name).put(body: YAML.dump(@extract_reply), content_type: "text/plain")
+        @ssaq.reply_bucket.object(@req_obj_name).put(body: YAML.dump(@extract_reply), content_type: "text/plain")
         reply_msg = {}
         reply_msg[:request_id] = @req_id
         reply_msg[:reply_type] = @extract_reply[:reply_type]
-        msg = @evmq.reply_queue.send_message(message_body: YAML.dump(reply_msg))
-        $log.debug("#{self.class.name}.#{__method__}: sent reply (#{@extract_reply[:reply_type]}) #{@evmq.reply_queue_name}:#{msg.message_id} to #{@evmq.request_queue_name}:#{@req_id}")
+        msg = @ssaq.reply_queue.send_message(message_body: YAML.dump(reply_msg))
+        $log.debug("#{self.class.name}.#{__method__}: sent reply (#{@extract_reply[:reply_type]}) #{@ssaq.reply_queue_name}:#{msg.message_id} to #{@ssaq.request_queue_name}:#{@req_id}")
       end
     end
   end
