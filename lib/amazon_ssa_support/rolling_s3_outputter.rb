@@ -9,7 +9,7 @@ module Log4r
       @count           = 0
       @aws_args        = hash[:aws_args]
       @s3_log_prefix   = File.join(@aws_args[:log_prefix], @aws_args[:extractor_id])
-      @evm_bucket      = AmazonSsaSupport::EvmBucket.get(@aws_args)
+      @ssa_bucket      = AmazonSsaSupport::SsaBucket.get(@aws_args)
 
       maxsize = (hash[:maxsize] || hash['maxsize']).to_i
       if maxsize >= 2**62 || maxsize.zero?
@@ -48,7 +48,7 @@ module Log4r
       @out.close
       return if @datasize.zero?
       key = s3_object_key
-      @evm_bucket.object(key).upload_file(@filename)
+      @ssa_bucket.object(key).upload_file(@filename)
       # truncate the file
       @out = File.new(@filename, "w")
       @datasize = 0

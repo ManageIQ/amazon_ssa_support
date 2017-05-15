@@ -3,7 +3,7 @@ require 'aws-sdk'
 require_relative 'spec_helper'
 require_relative 'aws_ssa_commons'
 
-describe AmazonSsaSupport::EvmHeartbeat do
+describe AmazonSsaSupport::SsaHeartbeat do
   before(:each) do
     $log = mocked_log
     Aws.config[:s3] = {
@@ -15,7 +15,7 @@ describe AmazonSsaSupport::EvmHeartbeat do
 
   let(:args) do
     { :extractor_id       => 'instance_id',
-      :evm_bucket         => 'bucket',
+      :ssa_bucket         => 'bucket',
       :reply_prefix       => 'rep-prefix',
       :heartbeat_prefix   => 'hb-prefix',
       :heartbeat_thread   => 'hb-thread',

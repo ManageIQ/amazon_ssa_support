@@ -3,14 +3,14 @@ require 'aws-sdk'
 require_relative 'spec_helper'
 require_relative 'aws_ssa_commons'
 
-describe AmazonSsaSupport::EvmQueue do
+describe AmazonSsaSupport::SsaQueue do
   before(:each) do
     $log = mocked_log
     config_aws_client_stub
   end
 
   let(:args) do
-    { :evm_bucket   => 's3_bucket',
+    { :ssa_bucket   => 's3_bucket',
       :extractor_id => 'instance-id' }
   end
 
@@ -26,13 +26,13 @@ describe AmazonSsaSupport::EvmQueue do
       expect { described_class.new(args) }.to raise_error(ArgumentError)
     end
 
-    it "require evm_bucket" do
-      args.delete(:evm_bucket)
+    it "require ssa_bucket" do
+      args.delete(:ssa_bucket)
       expect { described_class.new(args) }.to raise_error(ArgumentError)
     end
 
-    it "require evm_bucket" do
-      expect(subject.evm_bucket_name).to be_truthy
+    it "require ssa_bucket" do
+      expect(subject.ssa_bucket_name).to be_truthy
     end
 
     it "require request_queue" do
@@ -51,8 +51,8 @@ describe AmazonSsaSupport::EvmQueue do
       expect(subject.extractor_id).to be_truthy
     end
 
-    it "require evm_region" do
-      expect(subject.evm_region).to be_truthy
+    it "require ssa_region" do
+      expect(subject.ssa_region).to be_truthy
     end
 
     it "require sqs" do

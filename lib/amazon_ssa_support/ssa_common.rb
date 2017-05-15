@@ -5,6 +5,6 @@ module AmazonSsaSupport
   DEFAULT_HEARTBEAT_INTERVAL = 120
   DEFAULT_REPLY_PREFIX       = 'extract/queue-reply/'.freeze
 
-  DEFAULT_REQUEST_QUEUE      = 'evm_extract_request'.freeze
-  DEFAULT_REPLY_QUEUE        = 'evm_extract_reply'.freeze
+  DEFAULT_REQUEST_QUEUE      = 'ssa_extract_request'.freeze
+  DEFAULT_REPLY_QUEUE        = 'ssa_extract_reply'.freeze
 end

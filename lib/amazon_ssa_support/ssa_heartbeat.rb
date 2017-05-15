@@ -1,11 +1,11 @@
 require 'yaml'
 require 'aws-sdk'
 
-require_relative 'evm_common'
-require_relative 'evm_bucket'
+require_relative 'ssa_common'
+require_relative 'ssa_bucket'
 
 module AmazonSsaSupport
-  class EvmHeartbeat
+  class SsaHeartbeat
     attr_reader :extractor_id, :heartbeat_prefix
     attr_reader :heartbeat_thread, :heartbeat_interval
 
@@ -15,7 +15,7 @@ module AmazonSsaSupport
       @extractor_id       = args[:extractor_id]
       @region             = args[:region] || 'us-west-2'
       @s3                 = args[:s3] || Aws::S3::Resource.new(region: @region)
-      @evm_bucket         = EvmBucket.get(args)
+      @ssa_bucket         = SsaBucket.get(args)
       @heartbeat_prefix   = args[:heartbeat_prefix]
       @heartbeat_interval = args[:heartbeat_interval]
       @heartbeat_obj_key  = File.join(@heartbeat_prefix, @extractor_id) if @extractor_id
@@ -24,7 +24,7 @@ module AmazonSsaSupport
 
       if $log.debug?
         $log.debug("#{self.class.name}: extractor_id       = #{@extractor_id}")
-        $log.debug("#{self.class.name}: evm_bucket         = #{@evm_bucket.name}")
+        $log.debug("#{self.class.name}: ssa_bucket         = #{@ssa_bucket.name}")
         $log.debug("#{self.class.name}: heartbeat_prefix   = #{@heartbeat_prefix}")
         $log.debug("#{self.class.name}: heartbeat_interval = #{@heartbeat_interval}")
       end
@@ -60,12 +60,12 @@ module AmazonSsaSupport
       ts = Time.now.utc
       $log.debug("#{self.class.name}.#{__method__}: #{@extractor_id} --> #{ts}")
       $log.debug("obj_key: #{@heartbeat_obj_key}")
-      @evm_bucket.object(@heartbeat_obj_key).put(body: YAML.dump(ts), content_type: 'text/xml')
+      @ssa_bucket.object(@heartbeat_obj_key).put(body: YAML.dump(ts), content_type: 'text/xml')
     end
 
     def get_heartbeat(extractor_id)
       heartbeat_obj_key = File.join(@heartbeat_prefix, extractor_id)
-      hbobj = @evm_bucket.object(heartbeat_obj_key)
+      hbobj = @ssa_bucket.object(heartbeat_obj_key)
       return nil unless hbobj.exists?
       hbobj.last_modified.utc
     end

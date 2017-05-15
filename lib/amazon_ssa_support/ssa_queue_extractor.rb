@@ -2,12 +2,12 @@ require 'yaml'
 require 'aws-sdk'
 
 require_relative 'miq_ec2_vm/miq_ec2_vm'
-require_relative 'evm_queue'
+require_relative 'ssa_queue'
 
 module AmazonSsaSupport
-  class EvmQueueExtractor
+  class SsaQueueExtractor
     CATEGORIES = %w(accounts services software system).freeze
-    attr_reader :my_instance, :evmq
+    attr_reader :my_instance, :ssaq
 
     def initialize(aws_args)
       raise ArgumentError, "extractor_id must be specified." if aws_args[:extractor_id].nil?
@@ -17,13 +17,13 @@ module AmazonSsaSupport
 
       @ec2          = @aws_args[:ec2] || Aws::EC2::Resource.new(region: @region)
       @my_instance  = @ec2.instance(@extractor_id)
-      @evmq         = EvmQueue.new(@aws_args)
+      @ssaq         = SsaQueue.new(@aws_args)
       @exit_code    = nil
     end
 
     def extract_loop
       $log.debug("#{self.class.name}.#{__method__} entered")
-      @evmq.request_loop do |req|
+      @ssaq.request_loop do |req|
         $log.debug("#{self.class.name}.#{__method__} got message #{req[:sqs_msg].message_id}")
         process_request(req)
         return @exit_code if @exit_code
@@ -41,14 +41,14 @@ module AmazonSsaSupport
         do_ers(req)
       else
         $log.error("#{self.class.name}.#{__method__}: Unrecognized request #{req_type}")
-        @evmq.delete_request(req)
+        @ssaq.delete_request(req)
       end
       $log.debug("#{self.class.name}.#{__method__}: completed processing request - #{req_type}")
     end
 
     def do_extract(req)
-      @evmq.delete_request(req)
-      extract_reply = @evmq.new_reply(req)
+      @ssaq.delete_request(req)
+      extract_reply = @ssaq.new_reply(req)
       begin
         ec2_vm = MiqEC2Vm.new(req[:ec2_id], @my_instance, @ec2)
         categories = req[:categories] || CATEGORIES
@@ -72,16 +72,16 @@ module AmazonSsaSupport
       if req[:extractor_id] != @extractor_id
         if req_target_exists?(req)
           $log.debug("#{self.class.name}.#{__method__}: re-queueing request: #{req[:sqs_msg].id}")
-          @evmq.requeue_request(req)
+          @ssaq.requeue_request(req)
         else
           $log.debug("#{self.class.name}.#{__method__}: deleting request: #{req[:sqs_msg].id}")
-          @evmq.delete_request(req)
+          @ssaq.delete_request(req)
         end
         return
       end
       @exit_code = req[:request_type]
-      @evmq.delete_request(req)
-      @evmq.send_ers_reply(req)
+      @ssaq.delete_request(req)
+      @ssaq.send_ers_reply(req)
     end
 
     def req_target_exists?(req)
