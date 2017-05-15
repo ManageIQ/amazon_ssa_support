@@ -10,8 +10,8 @@ describe AmazonSsaSupport::SsaQueue do
   end
 
   let(:args) do
-    { :ssa_bucket   => 's3_bucket',
-      :extractor_id => 'instance-id' }
+    { :ssa_bucket => 's3_bucket',
+      :region     => 'us-region' }
   end
 
   subject { described_class.new(args) }
@@ -21,8 +21,8 @@ describe AmazonSsaSupport::SsaQueue do
       expect { described_class.new }.to raise_error(ArgumentError)
     end
 
-    it "require extractor_id" do
-      args.delete(:extractor_id)
+    it "require region" do
+      args.delete(:region)
       expect { described_class.new(args) }.to raise_error(ArgumentError)
     end
 
@@ -45,10 +45,6 @@ describe AmazonSsaSupport::SsaQueue do
 
     it "require reply_prefix" do
       expect(subject.reply_prefix).to be_truthy
-    end
-
-    it "require extractor_id" do
-      expect(subject.extractor_id).to be_truthy
     end
 
     it "require ssa_region" do

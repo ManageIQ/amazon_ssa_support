@@ -10,10 +10,10 @@ module AmazonSsaSupport
     attr_reader :my_instance, :ssaq
 
     def initialize(aws_args)
-      raise ArgumentError, "extractor_id must be specified." if aws_args[:extractor_id].nil?
+      raise ArgumentError, "Region must be specified." if aws_args[:region].nil?
       @aws_args     = aws_args
       @extractor_id = @aws_args[:extractor_id]
-      @region       = @aws_args[:region] || DEFAULT_REGION
+      @region       = @aws_args[:region]
 
       @ec2          = @aws_args[:ec2] || Aws::EC2::Resource.new(region: @region)
       @my_instance  = @ec2.instance(@extractor_id)

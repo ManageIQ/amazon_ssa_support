@@ -14,7 +14,7 @@ describe AmazonSsaSupport::SsaHeartbeat do
   end
 
   let(:args) do
-    { :extractor_id       => 'instance_id',
+    { :region             => 'us-region',
       :ssa_bucket         => 'bucket',
       :reply_prefix       => 'rep-prefix',
       :heartbeat_prefix   => 'hb-prefix',
@@ -29,8 +29,8 @@ describe AmazonSsaSupport::SsaHeartbeat do
       expect { described_class.new }.to raise_error(ArgumentError)
     end
 
-    it "passes if an ArgumentError is raised when extractor_id is not specified." do
-      args.delete(:extractor_id)
+    it "passes if an ArgumentError is raised when region is not specified." do
+      args.delete(:region)
       expect { described_class.new(args) }.to raise_error(ArgumentError)
     end
 
