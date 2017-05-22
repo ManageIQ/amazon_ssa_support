@@ -18,7 +18,7 @@ module AmazonSsaSupport
       @reply_prefix       = args[:reply_prefix] || DEFAULT_REPLY_PREFIX
 
       unless ssa_bucket_name && ssa_region
-        raise ArgumentError, "bucket_name & region must have to be specified."
+        raise ArgumentError, "bucket & region must be specified."
       end
 
       $log.debug("#{self.class.name}: request_queue_name = #{@request_queue_name}")
