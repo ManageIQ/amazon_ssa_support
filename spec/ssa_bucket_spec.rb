@@ -10,7 +10,7 @@ describe AmazonSsaSupport::SsaBucket do
   end
 
   let(:args) do
-    { :ssa_bucket => 'bucket_name', :reply_prefix => 'miq_' }
+    { :ssa_bucket => 'bucket_name', :region => 'us-region' }
   end
 
   it "pass when have an get method" do
@@ -27,6 +27,11 @@ describe AmazonSsaSupport::SsaBucket do
 
   it "fails when ssa_bucket is not specified" do
     args.delete(:ssa_bucket)
+    expect { described_class.get(args) }.to raise_error(ArgumentError)
+  end
+
+  it "fails when region is not specified" do
+    args.delete(:region)
     expect { described_class.get(args) }.to raise_error(ArgumentError)
   end
 end

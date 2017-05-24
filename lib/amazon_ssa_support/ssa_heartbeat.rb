@@ -10,10 +10,10 @@ module AmazonSsaSupport
     attr_reader :heartbeat_thread, :heartbeat_interval
 
     def initialize(args)
-      raise ArgumentError, "extractor_id must be specified" if args[:extractor_id].nil?
+      raise ArgumentError, "Region must be specified" if args[:region].nil?
 
       @extractor_id       = args[:extractor_id]
-      @region             = args[:region] || 'us-west-2'
+      @region             = args[:region]
       @s3                 = args[:s3] || Aws::S3::Resource.new(region: @region)
       @ssa_bucket         = SsaBucket.get(args)
       @heartbeat_prefix   = args[:heartbeat_prefix]

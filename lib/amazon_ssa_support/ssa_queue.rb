@@ -12,13 +12,13 @@ module AmazonSsaSupport
     def initialize(args)
       @extractor_id       = args[:extractor_id]
       @ssa_bucket_name    = args[:ssa_bucket]
-      @ssa_region         = args[:region] || DEFAULT_REGION
+      @ssa_region         = args[:region]
       @request_queue_name = args[:request_queue] || DEFAULT_REQUEST_QUEUE
       @reply_queue_name   = args[:reply_queue] || DEFAULT_REPLY_QUEUE
       @reply_prefix       = args[:reply_prefix] || DEFAULT_REPLY_PREFIX
 
-      unless ssa_bucket_name && extractor_id
-        raise ArgumentError, "extractor_id & ssa_bucket_name must have to be specified."
+      unless ssa_bucket_name && ssa_region
+        raise ArgumentError, "bucket & region must be specified."
       end
 
       $log.debug("#{self.class.name}: request_queue_name = #{@request_queue_name}")
