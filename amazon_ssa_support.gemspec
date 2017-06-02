@@ -6,8 +6,7 @@ require 'amazon_ssa_support/version'
 Gem::Specification.new do |spec|
   spec.name          = "amazon_ssa_support"
   spec.version       = AmazonSsaSupport::VERSION
-  spec.authors       = ["hsong-rh"]
-  spec.email         = ["hsong@redhat.com"]
+  spec.authors       = ["ManageIQ Developers"]
 
   spec.summary       = %q{Supporting files and libraries for SmartState Analysis on Amazone EC2}
   spec.description   = %q{This is a ruby interface for SSA on Amazon EC2 instances and images}
@@ -23,8 +22,8 @@ Gem::Specification.new do |spec|
   spec.add_dependency "manageiq-gems-pending", "~> 0"
   spec.add_dependency "manageiq-smartstate", "~> 0.1"
 
-  spec.add_development_dependency "bundler", "~> 1.13"
-  spec.add_development_dependency "rake", "~> 10.0"
+  spec.add_development_dependency "bundler"
+  spec.add_development_dependency "rake"
   spec.add_development_dependency "rspec", "~> 3.0"
 
   spec.add_development_dependency "codeclimate-test-reporter", "~> 1.0.0"
