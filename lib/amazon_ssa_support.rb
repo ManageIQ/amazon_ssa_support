@@ -1,3 +1,4 @@
+require 'manageiq-smartstate'
 require 'amazon_ssa_support/version'
 require 'amazon_ssa_support/ssa_common'
 require 'amazon_ssa_support/instance_metadata'
