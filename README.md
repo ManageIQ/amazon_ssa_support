@@ -1,5 +1,14 @@
 # AmazonSsaSupport
 
+[![Gem Version](https://badge.fury.io/rb/amazon_ssa_support.svg)](http://badge.fury.io/rb/amazon_ssa_support)
+[![Build Status](https://travis-ci.org/ManageIQ/amazon_ssa_support.svg)](https://travis-ci.org/ManageIQ/amazon_ssa_support)
+[![Code Climate](https://codeclimate.com/github/ManageIQ/amazon_ssa_support.svg)](https://codeclimate.com/github/ManageIQ/amazon_ssa_support)
+[![Test Coverage](https://codeclimate.com/github/ManageIQ/amazon_ssa_support/badges/coverage.svg)](https://codeclimate.com/github/ManageIQ/amazon_ssa_support/coverage)
+[![Dependency Status](https://gemnasium.com/ManageIQ/amazon_ssa_support.svg)](https://gemnasium.com/ManageIQ/amazon_ssa_support)
+[![Security](https://hakiri.io/github/ManageIQ/amazon_ssa_support/master.svg)](https://hakiri.io/github/ManageIQ/amazon_ssa_support/master)
+
+[![Chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ManageIQ/amazon_ssa_support?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/amazon_ssa_support`. To experiment with that code, run `bin/console` for an interactive prompt.
 
 TODO: Delete this and the text above, and describe your gem
