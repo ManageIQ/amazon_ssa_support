@@ -119,7 +119,7 @@ module AmazonSsaSupport
     def requeue_request(req)
       msg = req[:sqs_msg]
       body = YAML.safe_load(msg.body)
-      if body[:original_request_id]
+      if body[:original_req_id]
         @request_queue.send_message(message_body: msg.body, delay_seconds: 10)
       else
         body[:original_req_id] = msg.message_id
