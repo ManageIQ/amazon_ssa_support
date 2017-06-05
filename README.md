@@ -10,7 +10,7 @@
 [![Chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ManageIQ/amazon_ssa_support?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 This gem provides support required for running ManageIQ Smart State Analysis (SSA) on Amazon Instances and Images.
-There are two use cases in which the gem is used: when running in AWS, the scanning instance installs the gem to perform SSA on Instances and Images attached to it; on a ManageIQ appliance, the gem is used to issue requests for SSA and handle the responses.
+There are two use cases in which the gem is used: when running in AWS as an agent, the scanning instance installs the gem to perform SSA on Instances and Images attached to it; on a ManageIQ appliance, the gem is used to issue requests for SSA and handle the responses.
 
 ## Installation
 
