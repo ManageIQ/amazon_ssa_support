@@ -9,9 +9,8 @@
 
 [![Chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ManageIQ/amazon_ssa_support?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/amazon_ssa_support`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+This gem provides support required for running ManageIQ Smart State Analysis (SSA) on Amazon Instances and Images.
+There are two use cases in which the gem is used: when running in AWS, the scanning instance installs the gem to perform SSA on Instances and Images attached to it; on a ManageIQ appliance, the gem is used to issue requests for SSA and handle the responses.
 
 ## Installation
 
@@ -31,7 +30,19 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+To queue an SSA Extract Request:
+
+    ssaq_args                 = {}
+    ssaq_args[:ssa_bucket]    = bucket_name
+    ssaq_args[:region]        = region_name
+    ssaq_args[:sqs]           = connected_sqs_service
+    ssaq_args[:s3]            = connected_s3_service
+    ssaq = AmazonSsaSupport::SsaQueue.new(ssaq_args)
+    ssaq.send_extract_request(ems_reference, job_id, AmazonSsaSupport::SsaExtractor::CATEGORIES)
+
+To obtain the SSA Extract Response:
+
+    reply = ssaq.reply_loop
 
 ## Development
 
