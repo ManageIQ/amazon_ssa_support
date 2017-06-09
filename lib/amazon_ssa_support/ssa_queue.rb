@@ -162,7 +162,7 @@ module AmazonSsaSupport
           msg.delete
           return nil
         end
-        reply_data = YAML.load(s3_obj.read, safe: true)
+        reply_data = YAML.load(s3_obj.get.body.read, safe: true)
         reply_data[:request_id] = req_id
         reply_data[:sqs_msg] = msg
         s3_obj.delete
