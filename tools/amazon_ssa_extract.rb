@@ -18,13 +18,13 @@ class LogFormatter < Log4r::Formatter
   @@extractor_id = ''
   def format(event)
     return event.data.chomp + "\n" if event.level == Log4r::COPY
-    
+
     "#{Log4r::LNAMES[event.level]} [#{datetime}" +
     (@@extractor_id.nil? ? "" : " #{@@extractor_id}") +
     "] -- #{@@prog}: " +
     (event.data.kind_of?(String) ? event.data : event.data.inspect) + "\n"
   end
-  
+
   def self.extractor_id=(val)
     @@extractor_id = val
   end
@@ -100,11 +100,10 @@ begin
   aws_args[:extractor_id] = extractor_id
   reg                     = aws_args[:region]
 
-  
   aws_args[:ec2] = Aws::EC2::Resource.new(region: reg)
   aws_args[:sqs] = Aws::SQS::Resource.new(region: reg)
   aws_args[:s3]  = Aws::S3::Resource.new(region: reg)
-  
+
   #
   # Logging args.
   #
@@ -118,7 +117,7 @@ begin
     :maxsize   => max_log_size,
     :aws_args  => aws_args
   }
-  
+
   #
   # Initialize logging.
   #
@@ -135,13 +134,13 @@ begin
     eso.only_at(Log4r::DEBUG, Log4r::INFO, Log4r::WARN, Log4r::ERROR, Log4r::FATAL, Log4r::COPY)
     $log.add 'err_console'
   end
-  
+
   #
   # Initialize and enter the heartbeat loop.
   #
   ehb = AmazonSsaSupport::SsaHeartbeat.new(aws_args)
   ehb.start_heartbeat_loop
-  
+
   #
   # Initialize the extractor and enter the main extraction loop.
   #
