@@ -70,12 +70,12 @@ OptionParser.new do |opts|
     log_to_stderr = true
   end
   opts.on('-l', '--loglevel ARG', "The log level: DEBUG|INFO|WARN|ERROR|FATAL") do |ll|
-    raise OptionParser::ParseError "Unrecognized log level: #{ll}" unless (/DEBUG|INFO|WARN|ERROR|FATAL/i =~ ll)
+    raise OptionParser::ParseError, "Unrecognized log level: #{ll}" unless /DEBUG|INFO|WARN|ERROR|FATAL/i =~ ll
     log_level_str = ll.upcase
   end
   opts.on('--max-log-size ARG', "Roll to S3 after log file exceeds this size") do
     n = max_log_size.to_i
-    raise OptionParser::ParseError "Max log size must be >= 256" if n < 256
+    raise OptionParser::ParseError, "Max log size must be >= 256" if n < 256
     max_log_size = n
   end
 
@@ -159,12 +159,12 @@ begin
         lfo.flush
         break
       when :reboot
-        $log.info "Rebooting"
+        $log.info("Rebooting")
         ehb.stop_heartbeat_loop
         lfo.flush
         `nohup shutdown -t0 -r now &`
       when :shutdown
-        $log.info "Shutting down"
+        $log.info("Shutting down")
         ehb.stop_heartbeat_loop
         lfo.flush
         `nohup shutdown -t0 -h now &`
@@ -172,6 +172,5 @@ begin
     rescue => err
       $log.error(err.backtrace.join("\n"))
     end
-
   end
 end
