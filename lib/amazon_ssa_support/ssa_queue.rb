@@ -65,7 +65,7 @@ module AmazonSsaSupport
       request[:ec2_id]       = ec2_id
       request[:job_id]       = job_id
       request[:categories]   = categories
-      @request_queue.send_message(message_body: YAML.dump(request, :safe => true))
+      @request_queue.send_message(message_body: YAML.dump(request, safe: true))
     end
 
     #
@@ -93,7 +93,7 @@ module AmazonSsaSupport
       request = {}
       request[:request_type] = request_type
       request[:extractor_id] = extractor_id
-      @request_queue.send_message(message_body: YAML.dump(request, :safe => true))
+      @request_queue.send_message(message_body: YAML.dump(request, safe: true))
     end
     private :send_ers_request
 
@@ -123,7 +123,7 @@ module AmazonSsaSupport
         @request_queue.send_message(message_body: msg.body, delay_seconds: 10)
       else
         body[:original_req_id] = msg.message_id
-        @request_queue.send_message(message_body: YAML.dump(body, :safe => true), delay_seconds: 10)
+        @request_queue.send_message(message_body: YAML.dump(body, safe: true), delay_seconds: 10)
       end
       msg.delete
     end
@@ -190,7 +190,7 @@ module AmazonSsaSupport
       ers_reply[:extractor_id] = @extractor_id
       ers_reply[:request_id]   = req[:original_req_id]
 
-      msg = @reply_queue.send_message(message_body: YAML.dump(ers_reply, :safe => true))
+      msg = @reply_queue.send_message(message_body: YAML.dump(ers_reply, safe: true))
       $log.debug("#{self.class.name}.#{__method__}: sent reply (#{ers_reply[:reply_type]}) #{@reply_queue_name}:#{msg.message_id} to #{@request_queue_name}:#{ers_reply[:request_id]}")
     end
 
@@ -243,11 +243,11 @@ module AmazonSsaSupport
 
       def reply
         @extract_reply[:end_time] = Time.now.utc.to_s # XXX keep this a Time object?
-        @ssaq.reply_bucket.object(@req_obj_name).put(body: YAML.dump(@extract_reply, :safe => true), content_type: "text/plain")
+        @ssaq.reply_bucket.object(@req_obj_name).put(body: YAML.dump(@extract_reply, safe: true), content_type: "text/plain")
         reply_msg = {}
         reply_msg[:request_id] = @req_id
         reply_msg[:reply_type] = @extract_reply[:reply_type]
-        msg = @ssaq.reply_queue.send_message(message_body: YAML.dump(reply_msg, :safe => true))
+        msg = @ssaq.reply_queue.send_message(message_body: YAML.dump(reply_msg, safe: true))
         $log.debug("#{self.class.name}.#{__method__}: sent reply (#{@extract_reply[:reply_type]}) #{@ssaq.reply_queue_name}:#{msg.message_id} to #{@ssaq.request_queue_name}:#{@req_id}")
       end
     end
