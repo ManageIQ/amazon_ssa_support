@@ -158,9 +158,8 @@ module AmazonSsaSupport
         s3_obj_name = @reply_prefix + req_id
         s3_obj = @reply_bucket.object(s3_obj_name)
         unless s3_obj.exists?
-          $log.warn("#{self.class.name}.#{__method__}: Reply object #{s3_obj_name} does not exist")
           msg.delete
-          return nil
+          raise "Reply object #{s3_obj_name} does not exist"
         end
         reply_data = YAML.safe_load(s3_obj.read)
         reply_data[:request_id] = req_id
