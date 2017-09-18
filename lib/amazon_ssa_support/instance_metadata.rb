@@ -1,7 +1,10 @@
 require 'httpclient'
+require 'log_decorator'
 
 module AmazonSsaSupport
   class InstanceMetadata
+    include LogDecorator::Logging
+
     def initialize(version = 'latest')
       @base_url     = 'http://169.254.169.254/'
       @version      = version
@@ -24,7 +27,7 @@ module AmazonSsaSupport
     def metadata(path)
       rv = do_get(@metadata_url + path, "metadata")
       data = rv.split("\n")
-      $log.warn("Metadata #{path} contains multiple attributes: #{data}, return the first one.") if data.size > 1 && $log
+      _log.warn("Metadata #{path} contains multiple attributes: #{data}, return the first one.") if data.size > 1
       data[0]
     end
 
