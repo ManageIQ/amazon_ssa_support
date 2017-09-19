@@ -24,18 +24,18 @@ module AmazonSsaSupport
     end
 
     def extract_loop(timeout)
-      start = Time.now
+      start = Time.now.to_i
       loop do
         begin
           @ssaq.request_loop do |req|
             _log.debug("Got message #{req[:sqs_msg].message_id}")
             process_request(req)
-            start = Time.now # reset time counter after message is processed
+            start = Time.now.to_i # reset time counter after message is processed
             return @exit_code if @exit_code
             _log.debug("Waiting for next message")
           end
         end
-        break if (Time.now - start).to_i >= timeout
+        break if (Time.now.to_i - start) >= timeout
       end
       _log.debug("No messages received in #{timeout} seconds, agent shuts down!!!")
       @exit_code = :shutdown

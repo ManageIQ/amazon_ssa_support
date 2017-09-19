@@ -30,27 +30,19 @@ module AmazonSsaSupport
 
       @sqs = args[:sqs] || Aws::SQS::Resource.new(region: @ssa_region)
 
-      begin
-        # TODO: use FIFO queue
-        @request_queue = @sqs.get_queue_by_name(queue_name: @request_queue_name)
-        _log.debug("Found request queue #{@request_queue_name}")
-      rescue Aws::SQS::Errors::NonExistentQueue
-        _log.debug("Request queue #{@request_queue_name} does not exist, creating...")
-        @request_queue = @sqs.create_queue(queue_name: @request_queue_name)
-        _log.debug("Created request queue #{@request_queue_name}")
-      end
-
-      begin
-        # TODO: use FIFO queue
-        @reply_queue = @sqs.get_queue_by_name(queue_name: @reply_queue_name)
-        _log.debug("Found reply queue #{@reply_queue_name}")
-      rescue Aws::SQS::Errors::NonExistentQueue
-        _log.debug("Reply queue #{@reply_queue_name} does not exist, creating...")
-        @reply_queue = @sqs.create_queue(queue_name: @reply_queue_name)
-        _log.debug("Created reply queue #{@reply_queue_name}")
-      end
+      @request_queue = find_or_create_queue(@sqs, @request_queue_name)
+      @reply_queue   = find_or_create_queue(@sqs, @reply_queue_name)
 
       @reply_bucket = SsaBucket.get(args)
+    end
+
+    def find_or_create_queue(sqs, name)
+      queue = sqs.get_queue_by_name(queue_name: name)
+    rescue Aws::SQS::Errors::NonExistentQueue
+      _log.debug("Queue #{name} does not exist, creating...")
+      queue = sqs.create_queue(queue_name: name)
+    rescue Aws::SQS::Errors::ServiceError => exception
+      raise exception.message
     end
 
     ##################
@@ -110,6 +102,7 @@ module AmazonSsaSupport
 
     def get_request(msg)
       req = YAML.load(msg.body, safe: true)
+      _log.debug("req: #{req.inspect}")
       req[:sqs_msg] = msg
       req
     end

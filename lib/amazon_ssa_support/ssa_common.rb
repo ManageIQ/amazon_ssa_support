@@ -3,7 +3,6 @@ require 'logger'
 
 # Constants and methods
 module AmazonSsaSupport
-
   DEFAULT_HEARTBEAT_PREFIX   = 'extract/heartbeat/'.freeze
   DEFAULT_HEARTBEAT_INTERVAL = 120
 
@@ -16,5 +15,5 @@ module AmazonSsaSupport
   DEFAULT_LOG_LEVEL          = 'INFO'.freeze
   DEFAULT_BUCKET_PREFIX      = 'miq-ssa'.freeze
 
-  DEFAULT_REQUEST_TIMEOUT    = 900  # 15 min
+  DEFAULT_REQUEST_TIMEOUT    = 900 #15 min
 end

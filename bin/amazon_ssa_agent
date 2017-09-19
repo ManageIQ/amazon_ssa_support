@@ -142,8 +142,6 @@ begin
   aws_args[:sqs] = Aws::SQS::Resource.new(region: reg)
   aws_args[:s3]  = Aws::S3::Resource.new(region: reg)
 
-  _log.info("Starting heart beating ...")
-
   #
   # Initialize and enter the heartbeat loop.
   #
