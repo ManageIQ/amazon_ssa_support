@@ -39,7 +39,7 @@ module AmazonSsaSupport
           begin
             heartbeat
           rescue StandardError => err
-            _log.warn("#{err.to_s}")
+            _log.warn(err.to_s)
             _log.warn(err.backtrace.join("\n"))
           end
           sleep @heartbeat_interval

@@ -37,10 +37,10 @@ module AmazonSsaSupport
     end
 
     def find_or_create_queue(sqs, name)
-      queue = sqs.get_queue_by_name(queue_name: name)
+      sqs.get_queue_by_name(queue_name: name)
     rescue Aws::SQS::Errors::NonExistentQueue
       _log.debug("Queue #{name} does not exist, creating...")
-      queue = sqs.create_queue(queue_name: name)
+      sqs.create_queue(queue_name: name)
     rescue Aws::SQS::Errors::ServiceError => exception
       raise exception.message
     end
