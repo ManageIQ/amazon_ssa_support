@@ -1,5 +1,7 @@
-require 'rubygems'
-require 'bundler/setup'
+#!/usr/bin/env ruby
+root_dir = File.expand_path("..", __dir__)
+Dir.chdir(root_dir) { require 'bundler/setup' }
+$LOAD_PATH << File.join(root_dir, "lib")
 
 require 'optparse'
 require 'log4r'

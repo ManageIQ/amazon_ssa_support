@@ -13,10 +13,12 @@ Gem::Specification.new do |spec|
   spec.homepage      = "https://github.com/ManageIQ/amazon_ssa_support"
   spec.license       = "MIT"
 
-  #spec.files         = `git ls-files -z`.split("\x0").reject do |f|
-  #  f.match(%r{^(test|spec|features)/})
-  #end
-  spec.files         = Dir.glob("lib/**/*.rb")
+  spec.files         = `git ls-files -z`.split("\x0").reject do |f|
+    f.match(%r{^(test|spec|features)/})
+  end
+  spec.bindir        = "bin"
+  spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) } - %w[console setup]
+  spec.require_paths = ["lib"]
 
   spec.add_dependency "aws-sdk", "~>2.9.7"
   spec.add_dependency "manageiq-gems-pending", "~> 0"
