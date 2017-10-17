@@ -5,7 +5,6 @@ require_relative 'aws_ssa_commons'
 
 describe AmazonSsaSupport::SsaHeartbeat do
   before(:each) do
-    $log = mocked_log
     Aws.config[:s3] = {
       :stub_responses => {
         :list_buckets => { :buckets => [{ :name => 'miq_test' }] }

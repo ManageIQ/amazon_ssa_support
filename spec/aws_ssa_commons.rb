@@ -11,15 +11,6 @@ def config_aws_client_stub
   }
 end
 
-def mocked_log
-  obj = double
-  allow(obj).to receive(:info)
-  allow(obj).to receive(:debug)
-  allow(obj).to receive(:debug?).and_return(true)
-
-  obj
-end
-
 def mocked_ebs_instance(id)
   mapping1 = double
   allow(mapping1).to receive_message_chain("ebs.volume_id") { 'vol_1' }
