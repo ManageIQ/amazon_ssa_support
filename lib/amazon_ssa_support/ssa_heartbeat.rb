@@ -1,11 +1,14 @@
 require 'yaml'
 require 'aws-sdk'
 
+require 'log_decorator'
 require_relative 'ssa_common'
 require_relative 'ssa_bucket'
 
 module AmazonSsaSupport
   class SsaHeartbeat
+    include LogDecorator::Logging
+
     attr_reader :extractor_id, :heartbeat_prefix
     attr_reader :heartbeat_thread, :heartbeat_interval
 
@@ -22,28 +25,26 @@ module AmazonSsaSupport
       @heartbeat_thread   = nil
       @do_heartbeat       = true
 
-      if $log.debug?
-        $log.debug("#{self.class.name}: extractor_id       = #{@extractor_id}")
-        $log.debug("#{self.class.name}: ssa_bucket         = #{@ssa_bucket.name}")
-        $log.debug("#{self.class.name}: heartbeat_prefix   = #{@heartbeat_prefix}")
-        $log.debug("#{self.class.name}: heartbeat_interval = #{@heartbeat_interval}")
-      end
+      _log.debug("extractor_id       = #{@extractor_id}")
+      _log.debug("ssa_bucket         = #{@ssa_bucket.name}")
+      _log.debug("heartbeat_prefix   = #{@heartbeat_prefix}")
+      _log.debug("heartbeat_interval = #{@heartbeat_interval}")
     end
 
     def start_heartbeat_loop
       return unless @heartbeat_thread.nil?
-      $log.debug("#{self.class.name}.#{__method__}: starting heartbeat loop (#{object_id})")
+      _log.debug("Starting heartbeat loop (#{object_id})")
       @heartbeat_thread = Thread.new do
         while @do_heartbeat
           begin
             heartbeat
           rescue StandardError => err
-            $log.warn("#{self.class.name}.#{__method__}: #{err}")
-            $log.warn(err.backtrace.join("\n"))
+            _log.warn(err.to_s)
+            _log.warn(err.backtrace.join("\n"))
           end
           sleep @heartbeat_interval
         end
-        $log.debug("#{self.class.name}.#{__method__}: exiting heartbeat loop")
+        _log.debug("Exiting heartbeat loop")
         @heartbeat_thread = nil
       end
     end
@@ -58,8 +59,8 @@ module AmazonSsaSupport
 
     def heartbeat
       ts = Time.now.utc
-      $log.debug("#{self.class.name}.#{__method__}: #{@extractor_id} --> #{ts}")
-      $log.debug("obj_key: #{@heartbeat_obj_key}")
+      _log.debug("#{@extractor_id} --> #{ts}")
+      _log.debug("obj_key: #{@heartbeat_obj_key}")
       @ssa_bucket.object(@heartbeat_obj_key).put(body: YAML.dump(ts), content_type: 'text/xml')
     end
 

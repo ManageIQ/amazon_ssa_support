@@ -3,6 +3,7 @@ require_relative '../instance_metadata'
 
 module AmazonSsaSupport
   class MiqEC2EbsVmBase < MiqEC2VmBase
+    include LogDecorator::Logging
     attr_reader :volumes
 
     def initialize(ec2_obj, host_instance, ec2)
@@ -52,9 +53,9 @@ module AmazonSsaSupport
       return @miq_vm unless @miq_vm.nil?
 
       raise "#{self.class.name}.miq_vm: could not map volumes" unless map_volumes
-      `ls -l /dev/xvd*`.each_line { |l| $log.debug("        #{l.chomp}") } if $log.debug?
+      `ls -l /dev/xvd*`.each_line { |l| _log.debug("        #{l.chomp}") } if _log.debug?
       cfg = create_cfg
-      cfg.each_line { |l| $log.debug("    #{l.chomp}") } if $log.debug?
+      cfg.each_line { |l| _log.debug("    #{l.chomp}") } if _log.debug?
 
       @miq_vm = MiqVm.new(cfg)
     end
@@ -75,20 +76,20 @@ module AmazonSsaSupport
     def create_snapshot(vol_id)
       return vol_id if ebs_image?
 
-      $log.debug("    Creating snapshot of instance volume #{vol_id}")
+      _log.debug("    Creating snapshot of instance volume #{vol_id}")
       snap = @ec2.create_snapshot(volume_id: vol_id, description: "MIQ extract snapshot for instance: #{@ec2_obj.id}")
       snap.wait_until_completed
       snap.create_tags(tags: [{key: 'Name', value: 'MIQ extract snapshot'}])
-      $log.debug("    Creating snapshot of instance volume #{vol_id} DONE snap_id = #{snap.id}")
+      _log.debug("    Creating snapshot of instance volume #{vol_id} DONE snap_id = #{snap.id}")
       @snapshots << snap
       snap
     end
 
     def create_volume(snap_id)
-      $log.debug("    Creating volume based on #{snap_id}")
+      _log.debug("    Creating volume based on #{snap_id}")
       snap = @ec2.snapshot(snap_id)
       if snap.nil?
-        $log.warn("    Snapshot #{snap_id} does not exist (nil)")
+        _log.warn("    Snapshot #{snap_id} does not exist (nil)")
         return nil
       end
       volume = @ec2.create_volume(snapshot_id: snap_id, availability_zone: zone_name)
@@ -98,9 +99,9 @@ module AmazonSsaSupport
       volume.create_tags(tags: [{ key: 'Name', value: 'MIQ extract volume'},
                                 { key: 'Description', value: "MIQ extract volume for image: #{@ec2_obj.id}"}])
 
-      $log.debug("    Creating volume based on #{snap_id} DONE")
+      _log.debug("    Creating volume based on #{snap_id} DONE")
       @volumes << volume
-      $log.debug("    Volume size: #{@volumes.size}")
+      _log.debug("    Volume size: #{@volumes.size}")
 
       volume
     end
@@ -109,11 +110,11 @@ module AmazonSsaSupport
       @block_device_keys.each do |k|
         vol = create_volume(k)
         return false if vol.nil?
-        $log.debug("    Attaching volume #{vol.id} to #{mapdev}")
+        _log.debug("    Attaching volume #{vol.id} to #{mapdev}")
         vol.attach_to_instance(instance_id: @host_instance.id, device: mapdev)
         sleep 5
         @ec2.client.wait_until(:volume_in_use, volume_ids: [vol.id])
-        $log.debug("    Volume #{vol.id} is attached!")
+        _log.debug("    Volume #{vol.id} is attached!")
         mapdev.succ!
       end
       true
@@ -123,11 +124,11 @@ module AmazonSsaSupport
       while (vol = @volumes.shift)
         attachment = vol.detach_from_instance(instance_id: @host_instance.id, force: true)
 
-        $log.debug("#{self.class.name}.#{__method__}: #{vol.id} is #{attachment.state}")
+        _log.debug("#{vol.id} is #{attachment.state}")
         @ec2.client.wait_until(:volume_available, volume_ids: [vol.id])
         vol.delete
         @ec2.client.wait_until(:volume_deleted, volume_ids: [vol.id])
-        $log.debug("#{self.class.name}.#{__method__}: volume #{vol.inspect} is deleted!")
+        _log.debug("Volume #{vol.inspect} is deleted!")
       end
 
       while (snap = @snapshots.shift)

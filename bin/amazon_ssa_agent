@@ -6,8 +6,10 @@ $LOAD_PATH << File.join(root_dir, "lib")
 require 'optparse'
 require 'log4r'
 require 'log4r/configurator'
+require 'log_decorator'
 
 require 'aws-sdk'
+
 #
 # We must do this before anything accesses log4r.
 #
@@ -54,6 +56,11 @@ LOG_LEVELS = {
   Log4r::COPY  => "COPY"
 }
 
+::Module.include(LogDecorator::Logging::ClassMethods)
+include LogDecorator::Logging
+$log = Log4r::Logger.new('toplog')
+LogDecorator.logger = $log
+
 require 'amazon_ssa_support'
 require 'manageiq-gems-pending'
 
@@ -92,7 +99,6 @@ OptionParser.new do |opts|
 end
 
 begin
-
   #
   # Get info and args associated with this extractor instance.
   #
@@ -101,10 +107,6 @@ begin
   aws_args                = YAML.load(File.open('default_ssa_config.yml'), safe: true)
   aws_args[:extractor_id] = extractor_id
   reg                     = aws_args[:region]
-
-  aws_args[:ec2] = Aws::EC2::Resource.new(region: reg)
-  aws_args[:sqs] = Aws::SQS::Resource.new(region: reg)
-  aws_args[:s3]  = Aws::S3::Resource.new(region: reg)
 
   #
   # Logging args.
@@ -124,7 +126,6 @@ begin
   # Initialize logging.
   #
   LogFormatter.extractor_id = extractor_id
-  $log = Log4r::Logger.new('toplog')
   $log.level = log_level
   lfo = Log4r::RollingS3Outputter.new('log_s3', log_args)
   lfo.only_at(Log4r::DEBUG, Log4r::INFO, Log4r::WARN, Log4r::ERROR, Log4r::FATAL, Log4r::COPY)
@@ -137,6 +138,10 @@ begin
     $log.add('err_console')
   end
 
+  aws_args[:ec2] = Aws::EC2::Resource.new(region: reg)
+  aws_args[:sqs] = Aws::SQS::Resource.new(region: reg)
+  aws_args[:s3]  = Aws::S3::Resource.new(region: reg)
+
   #
   # Initialize and enter the heartbeat loop.
   #
@@ -148,31 +153,30 @@ begin
   #
   eqe = AmazonSsaSupport::SsaQueueExtractor.new(aws_args)
 
-  loop do
-    begin
-      exit_code = eqe.extract_loop
-      #
-      # Determine how we should exit.
-      #
-      case exit_code
-      when :exit
-        $log.info("Exiting")
-        ehb.stop_heartbeat_loop
-        lfo.flush
-        break
-      when :reboot
-        $log.info("Rebooting")
-        ehb.stop_heartbeat_loop
-        lfo.flush
-        `nohup shutdown -t0 -r now &`
-      when :shutdown
-        $log.info("Shutting down")
-        ehb.stop_heartbeat_loop
-        lfo.flush
-        `nohup shutdown -t0 -h now &`
-      end
-    rescue => err
-      $log.error(err.backtrace.join("\n"))
+  begin
+    timeout = AmazonSsaSupport::DEFAULT_REQUEST_TIMEOUT
+    exit_code = eqe.extract_loop(timeout)
+
+    #
+    # Determine how we should exit.
+    #
+    case exit_code
+    when :exit
+      _log.info("Exiting")
+      ehb.stop_heartbeat_loop
+      lfo.flush
+    when :reboot
+      _log.info("Rebooting")
+      ehb.stop_heartbeat_loop
+      lfo.flush
+      `nohup shutdown -t0 -r now &`
+    when :shutdown
+      _log.info("Shutting down")
+      ehb.stop_heartbeat_loop
+      lfo.flush
+      `nohup shutdown -t0 -h now &`
     end
+  rescue => err
+    _log.error(err.backtrace.join("\n"))
   end
 end

@@ -6,6 +6,8 @@ require_relative 'ssa_queue'
 
 module AmazonSsaSupport
   class SsaQueueExtractor
+    include LogDecorator::Logging
+
     CATEGORIES = %w(accounts services software system).freeze
     attr_reader :my_instance, :ssaq
 
@@ -21,29 +23,37 @@ module AmazonSsaSupport
       @exit_code    = nil
     end
 
-    def extract_loop
-      $log.debug("#{self.class.name}.#{__method__} entered")
-      @ssaq.request_loop do |req|
-        $log.debug("#{self.class.name}.#{__method__} got message #{req[:sqs_msg].message_id}")
-        process_request(req)
-        return @exit_code if @exit_code
-        $log.debug("#{self.class.name}.#{__method__} waiting for next message")
+    def extract_loop(timeout)
+      start = Time.now.to_i
+      loop do
+        begin
+          @ssaq.request_loop do |req|
+            _log.debug("Got message #{req[:sqs_msg].message_id}")
+            process_request(req)
+            start = Time.now.to_i # reset time counter after message is processed
+            return @exit_code if @exit_code
+            _log.debug("Waiting for next message")
+          end
+        end
+        break if (Time.now.to_i - start) >= timeout
       end
+      _log.debug("No messages received in #{timeout} seconds, agent shuts down!!!")
+      @exit_code = :shutdown
     end
 
     def process_request(req)
       req_type = req[:request_type]
-      $log.debug("#{self.class.name}.#{__method__}: processing request - #{req_type}")
+      _log.debug("Processing request - #{req_type}")
       case req_type
       when :extract
         do_extract(req)
       when :exit, :reboot, :shutdown
         do_ers(req)
       else
-        $log.error("#{self.class.name}.#{__method__}: Unrecognized request #{req_type}")
+        _log.error("Unrecognized request #{req_type}")
         @ssaq.delete_request(req)
       end
-      $log.debug("#{self.class.name}.#{__method__}: completed processing request - #{req_type}")
+      _log.debug("Completed processing request - #{req_type}")
     end
 
     def do_extract(req)
@@ -52,16 +62,16 @@ module AmazonSsaSupport
       begin
         ec2_vm = MiqEC2Vm.new(req[:ec2_id], @my_instance, @ec2)
         categories = req[:categories] || CATEGORIES
-        $log.debug("categories: #{categories.inspect}")
-        $log.info("MiqEC2Vm: #{ec2_vm.class.name} - categories = [ #{categories.join(', ')} ]")
+        _log.debug("categories: #{categories.inspect}")
+        _log.info("MiqEC2Vm: #{ec2_vm.class.name} - categories = [ #{categories.join(', ')} ]")
         categories.each do |cat|
           xml = ec2_vm.extract(cat)
           extract_reply.add_category(cat, xml)
         end
       rescue => err
         extract_reply.error = err.to_s
-        $log.error(err.to_s)
-        $log.error(err.backtrace.join("\n"))
+        _log.error(err.to_s)
+        _log.error(err.backtrace.join("\n"))
       ensure
         extract_reply.reply
         ec2_vm.unmount if ec2_vm
@@ -71,10 +81,10 @@ module AmazonSsaSupport
     def do_ers(req)
       if req[:extractor_id] != @extractor_id
         if req_target_exists?(req)
-          $log.debug("#{self.class.name}.#{__method__}: re-queueing request: #{req[:sqs_msg].id}")
+          _log.debug("Re-queueing request: #{req[:sqs_msg].id}")
           @ssaq.requeue_request(req)
         else
-          $log.debug("#{self.class.name}.#{__method__}: deleting request: #{req[:sqs_msg].id}")
+          _log.debug("Deleting request: #{req[:sqs_msg].id}")
           @ssaq.delete_request(req)
         end
         return

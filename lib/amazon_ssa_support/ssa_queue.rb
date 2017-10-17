@@ -6,6 +6,8 @@ require_relative 'ssa_bucket'
 
 module AmazonSsaSupport
   class SsaQueue
+    include LogDecorator::Logging
+
     attr_reader :ssa_bucket_name, :ssa_region, :request_queue_name, :reply_queue_name, :reply_bucket_name, :extractor_id
     attr_reader :request_queue, :reply_queue, :reply_bucket, :reply_prefix, :sqs
 
@@ -21,34 +23,26 @@ module AmazonSsaSupport
         raise ArgumentError, "bucket & region must be specified."
       end
 
-      $log.debug("#{self.class.name}: request_queue_name = #{@request_queue_name}")
-      $log.debug("#{self.class.name}: reply_queue_name   = #{@reply_queue_name}")
-      $log.debug("#{self.class.name}: ssa_bucket_name    = #{@ssa_bucket_name}")
-      $log.debug("#{self.class.name}: extractor_id       = #{@extractor_id}")
+      _log.debug("request_queue_name = #{@request_queue_name}")
+      _log.debug("reply_queue_name   = #{@reply_queue_name}")
+      _log.debug("ssa_bucket_name    = #{@ssa_bucket_name}")
+      _log.debug("extractor_id       = #{@extractor_id}")
 
       @sqs = args[:sqs] || Aws::SQS::Resource.new(region: @ssa_region)
 
-      begin
-        # TODO: use FIFO queue
-        @request_queue = @sqs.get_queue_by_name(queue_name: @request_queue_name)
-        $log.debug("#{self.class.name}: Found request queue #{@request_queue_name}")
-      rescue Aws::SQS::Errors::NonExistentQueue
-        $log.debug("#{self.class.name}: Request queue #{@request_queue_name} does not exist, creating...")
-        @request_queue = @sqs.create_queue(queue_name: @request_queue_name)
-        $log.debug("#{self.class.name}: Created request queue #{@request_queue_name}")
-      end
-
-      begin
-        # TODO: use FIFO queue
-        @reply_queue = @sqs.get_queue_by_name(queue_name: @reply_queue_name)
-        $log.debug("#{self.class.name}: Found reply queue #{@reply_queue_name}")
-      rescue Aws::SQS::Errors::NonExistentQueue
-        $log.debug("Reply queue #{@reply_queue_name} does not exist, creating...")
-        @reply_queue = @sqs.create_queue(queue_name: @reply_queue_name)
-        $log.debug("#{self.class.name}: Created reply queue #{@reply_queue_name}")
-      end
+      @request_queue = find_or_create_queue(@sqs, @request_queue_name)
+      @reply_queue   = find_or_create_queue(@sqs, @reply_queue_name)
 
       @reply_bucket = SsaBucket.get(args)
+    end
+
+    def find_or_create_queue(sqs, name)
+      sqs.get_queue_by_name(queue_name: name)
+    rescue Aws::SQS::Errors::NonExistentQueue
+      _log.debug("Queue #{name} does not exist, creating...")
+      sqs.create_queue(queue_name: name)
+    rescue Aws::SQS::Errors::ServiceError => exception
+      raise exception.message
     end
 
     ##################
@@ -108,6 +102,7 @@ module AmazonSsaSupport
 
     def get_request(msg)
       req = YAML.load(msg.body, safe: true)
+      _log.debug("req: #{req.inspect}")
       req[:sqs_msg] = msg
       req
     end
@@ -171,7 +166,7 @@ module AmazonSsaSupport
         body[:sqs_msg] = msg
         return body
       else
-        $log.warn("#{self.class.name}.#{__method__}: Unrecognized reply type #{body[:reply_type]}")
+        _log.warn("Unrecognized reply type #{body[:reply_type]}")
         return nil
       end
     end
@@ -191,7 +186,7 @@ module AmazonSsaSupport
       ers_reply[:request_id]   = req[:original_req_id]
 
       msg = @reply_queue.send_message(message_body: YAML.dump(ers_reply, safe: true))
-      $log.debug("#{self.class.name}.#{__method__}: sent reply (#{ers_reply[:reply_type]}) #{@reply_queue_name}:#{msg.message_id} to #{@request_queue_name}:#{ers_reply[:request_id]}")
+      _log.debug("Sent reply (#{ers_reply[:reply_type]}) #{@reply_queue_name}:#{msg.message_id} to #{@request_queue_name}:#{ers_reply[:request_id]}")
     end
 
     #
@@ -248,7 +243,7 @@ module AmazonSsaSupport
         reply_msg[:request_id] = @req_id
         reply_msg[:reply_type] = @extract_reply[:reply_type]
         msg = @ssaq.reply_queue.send_message(message_body: YAML.dump(reply_msg, safe: true))
-        $log.debug("#{self.class.name}.#{__method__}: sent reply (#{@extract_reply[:reply_type]}) #{@ssaq.reply_queue_name}:#{msg.message_id} to #{@ssaq.request_queue_name}:#{@req_id}")
+        _log.debug("Sent reply (#{@extract_reply[:reply_type]}) #{@ssaq.reply_queue_name}:#{msg.message_id} to #{@ssaq.request_queue_name}:#{@req_id}")
       end
     end
   end
