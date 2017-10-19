@@ -4,8 +4,6 @@ require_relative 'spec_helper'
 require_relative 'aws_ssa_commons'
 
 describe AmazonSsaSupport::SsaQueueExtractor do
-  before(:each) { $log = mocked_log }
-
   let(:args) { { :extractor_id => 'instance-id' } }
 
   subject { decribed_class.new(args) }

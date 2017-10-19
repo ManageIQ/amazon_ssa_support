@@ -5,7 +5,6 @@ require_relative 'aws_ssa_commons'
 
 describe AmazonSsaSupport::SsaQueue do
   before(:each) do
-    $log = mocked_log
     config_aws_client_stub
   end
 
