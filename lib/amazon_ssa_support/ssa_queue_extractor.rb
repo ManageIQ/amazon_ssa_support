@@ -37,7 +37,7 @@ module AmazonSsaSupport
         end
         break if (Time.now.to_i - start) >= timeout
       end
-      _log.info("No messages received in #{timeout} seconds, agent shuts down!!!")
+      _log.info("No messages received in #{timeout} seconds, agent shutting down!!!")
       @exit_code = :shutdown
     end
 

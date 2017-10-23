@@ -44,7 +44,7 @@ aws_args = YAML.load(File.read("#{work_dir}/config.yml"), :safe => true)
 # Logging must be set up very early because log_decorator will apply to
 # all classes after it's required.
 require 'amazon_ssa_support/rolling_s3_logger'
-log_filename  = File.join("#{work_dir}/extract.log")
+log_filename  = File.join(work_dir, "extract.log")
 log_max_size  = (log_max_size || aws_args[:log_max_size] || 1_048_576).to_i
 $log = AmazonSsaSupport::RollingS3Logger.new(log_filename, 1, log_max_size, log_to_stderr)
 $log.level    = (log_level || aws_args[:log_level] || "INFO").to_s.upcase

@@ -73,7 +73,7 @@ module AmazonSsaSupport
       volume.create_tags(tags: [{ key: 'Name', value: 'SSA extract volume'},
                                 { key: 'Description', value: "SSA extract volume for image: #{@ec2_obj.id}"}])
 
-      _log.info("    Volume #{volume.id} of snapshot #{snap_id} is created!")
+      _log.info("    Volume #{volume.id} of snapshot #{snap_id} created!")
       @volumes << volume
 
       volume
@@ -86,7 +86,7 @@ module AmazonSsaSupport
         vol = create_volume(k)
         return false if vol.nil?
 
-        # In Docker, mapdev is like /host_dev/xvdf; 
+        # In Docker, mapdev is like /host_dev/xvdf;
         mapdev = get_first_free_device(map_device_prefix)
         _log.info("    Attaching volume #{vol.id} to #{mapdev.gsub("host_dev", "dev")}")
         # Always attach to /dev block device, no matter inside docker or not
@@ -110,7 +110,7 @@ module AmazonSsaSupport
         @ec2.client.wait_until(:volume_available, volume_ids: [vol.id])
         vol.delete
         @ec2.client.wait_until(:volume_deleted, volume_ids: [vol.id])
-        _log.info("Volume #{vol.id} is deleted!")
+        _log.info("Volume #{vol.id} deleted!")
       end
     end
 

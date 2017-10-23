@@ -13,7 +13,7 @@ module AmazonSsaSupport
       super
       while (snap = @snapshots.shift)
         snap.delete
-        _log.info("Snapshot #{snap.id} is deleted!")
+        _log.info("Snapshot #{snap.id} deleted!")
       end
     end
 
@@ -22,7 +22,7 @@ module AmazonSsaSupport
       snap = @ec2.create_snapshot(volume_id: vol_id, description: "SSA extract snapshot for instance: #{@ec2_obj.id}")
       snap.wait_until_completed
       snap.create_tags(tags: [{key: 'Name', value: 'SSA extract snapshot'}])
-      _log.info("    Snapshot #{snap.id} of instance volume #{vol_id} is created!")
+      _log.info("    Snapshot #{snap.id} of instance volume #{vol_id} created!")
       @snapshots << snap
       snap
     end
