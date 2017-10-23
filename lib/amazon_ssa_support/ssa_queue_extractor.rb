@@ -17,7 +17,7 @@ module AmazonSsaSupport
       @extractor_id = @aws_args[:extractor_id]
       @region       = @aws_args[:region]
 
-      @ec2          = @aws_args[:ec2] || Aws::EC2::Resource.new(region: @region)
+      @ec2          = @aws_args[:ec2] || Aws::EC2::Resource.new(:region => @region)
       @my_instance  = @ec2.instance(@extractor_id)
       @ssaq         = SsaQueue.new(@aws_args)
       @exit_code    = nil
@@ -32,12 +32,12 @@ module AmazonSsaSupport
             process_request(req)
             start = Time.now.to_i # reset time counter after message is processed
             return @exit_code if @exit_code
-            _log.debug("Waiting for next message")
+            _log.info("Waiting for next message")
           end
         end
         break if (Time.now.to_i - start) >= timeout
       end
-      _log.debug("No messages received in #{timeout} seconds, agent shuts down!!!")
+      _log.info("No messages received in #{timeout} seconds, agent shuts down!!!")
       @exit_code = :shutdown
     end
 
@@ -54,6 +54,9 @@ module AmazonSsaSupport
         @ssaq.delete_request(req)
       end
       _log.debug("Completed processing request - #{req_type}")
+    rescue => err
+      _log.error(err.to_s)
+      _log.error(err.backtrace.join("\n"))
     end
 
     def do_extract(req)
@@ -62,11 +65,16 @@ module AmazonSsaSupport
       begin
         ec2_vm = MiqEC2Vm.new(req[:ec2_id], @my_instance, @ec2)
         categories = req[:categories] || CATEGORIES
-        _log.debug("categories: #{categories.inspect}")
-        _log.info("MiqEC2Vm: #{ec2_vm.class.name} - categories = [ #{categories.join(', ')} ]")
+        _log.info("categories: #{categories.inspect}")
         categories.each do |cat|
-          xml = ec2_vm.extract(cat)
-          extract_reply.add_category(cat, xml)
+          begin
+            xml = ec2_vm.extract(cat)
+            extract_reply.add_category(cat, xml)
+          # continue to extract other category even when one failed
+          rescue => err
+            _log.error(err.to_s)
+            _log.error(err.backtrace.join("\n"))
+          end
         end
       rescue => err
         extract_reply.error = err.to_s
@@ -74,7 +82,7 @@ module AmazonSsaSupport
         _log.error(err.backtrace.join("\n"))
       ensure
         extract_reply.reply
-        ec2_vm.unmount if ec2_vm
+        ec2_vm&.unmount
       end
     end
 
