@@ -7,8 +7,6 @@ require_relative 'ssa_bucket'
 
 module AmazonSsaSupport
   class SsaHeartbeat
-    include LogDecorator::Logging
-
     attr_reader :extractor_id, :heartbeat_prefix
     attr_reader :heartbeat_thread, :heartbeat_interval
 
@@ -17,7 +15,7 @@ module AmazonSsaSupport
 
       @extractor_id       = args[:extractor_id]
       @region             = args[:region]
-      @s3                 = args[:s3] || Aws::S3::Resource.new(region: @region)
+      @s3                 = args[:s3] || Aws::S3::Resource.new(:region => @region)
       @ssa_bucket         = SsaBucket.get(args)
       @heartbeat_prefix   = args[:heartbeat_prefix]
       @heartbeat_interval = args[:heartbeat_interval]
@@ -61,7 +59,7 @@ module AmazonSsaSupport
       ts = Time.now.utc
       _log.debug("#{@extractor_id} --> #{ts}")
       _log.debug("obj_key: #{@heartbeat_obj_key}")
-      @ssa_bucket.object(@heartbeat_obj_key).put(body: YAML.dump(ts), content_type: 'text/xml')
+      @ssa_bucket.object(@heartbeat_obj_key).put(:body => YAML.dump(ts), :content_type => 'text/xml')
     end
 
     def get_heartbeat(extractor_id)

@@ -3,6 +3,9 @@ require 'aws-sdk'
 require_relative '../spec_helper'
 require_relative '../aws_ssa_commons'
 
+::Module.include(LogDecorator::Logging::ClassMethods)
+include LogDecorator::Logging
+
 describe AmazonSsaSupport::MiqEC2EbsInstance do
   before :each do
     @eb2_obj = mocked_ebs_instance('i-mocked-1')
@@ -59,12 +62,6 @@ describe AmazonSsaSupport::MiqEC2EbsInstance do
   context "miq_vm" do
     it "defines a miqVm method" do
       expect(subject).to respond_to(:miq_vm)
-    end
-  end
-
-  context "create_cfg" do
-    it "defines a create_cfg method" do
-      expect(subject).to respond_to(:create_cfg)
     end
   end
 

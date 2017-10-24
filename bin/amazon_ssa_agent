@@ -9,7 +9,7 @@ cmd_name      = File.basename($PROGRAM_NAME)
 log_level     = nil
 log_max_size  = nil
 log_to_stderr = false
-
+work_dir      = ENV['WORK_DIR'] || '/opt/ssa_container'
 #
 # Process command line args.
 #
@@ -39,12 +39,12 @@ OptionParser.new do |opts|
 end
 
 require 'yaml'
-aws_args = YAML.load(File.read('default_ssa_config.yml'), :safe => true)
+aws_args = YAML.load(File.read("#{work_dir}/config.yml"), :safe => true)
 
 # Logging must be set up very early because log_decorator will apply to
 # all classes after it's required.
 require 'amazon_ssa_support/rolling_s3_logger'
-log_filename  = File.join('/opt/miq/log', 'extract.log')
+log_filename  = File.join(work_dir, "extract.log")
 log_max_size  = (log_max_size || aws_args[:log_max_size] || 1_048_576).to_i
 $log = AmazonSsaSupport::RollingS3Logger.new(log_filename, 1, log_max_size, log_to_stderr)
 $log.level    = (log_level || aws_args[:log_level] || "INFO").to_s.upcase
@@ -67,10 +67,12 @@ begin
   #
   # Get info and args associated with this extractor instance.
   #
-  im           = AmazonSsaSupport::InstanceMetadata.new
-  extractor_id = im.metadata('instance-id')
+  im = AmazonSsaSupport::InstanceMetadata.new
+  extractor_id            = im.metadata('instance-id')
+  extractor_doc           = im.data('dynamic/instance-identity/document')
+  region                  = YAML.load(extractor_doc, :safe => true)["region"]
   aws_args[:extractor_id] = extractor_id
-  region = aws_args[:region]
+  timeout                 = aws_args[:agent_idle_period] || AmazonSsaSupport::DEFAULT_REQUEST_TIMEOUT
 
   $log.formatter = lambda do |severity, datetime, progname, msg|
     "#{severity} [#{datetime.utc.iso8601(6)}#{extractor_id && " #{extractor_id}"}] -- #{progname}: #{msg}\n"
@@ -92,8 +94,9 @@ begin
   #
   eqe = AmazonSsaSupport::SsaQueueExtractor.new(aws_args)
 
+  _log.info("Agent starts to process requests ...")
+
   begin
-    timeout = AmazonSsaSupport::DEFAULT_REQUEST_TIMEOUT
     exit_code = eqe.extract_loop(timeout)
 
     #
@@ -106,13 +109,14 @@ begin
     when :reboot
       _log.info("Rebooting")
       ehb.stop_heartbeat_loop
-      `nohup shutdown -t0 -r now &`
+      aws_args[:ec2].instance(extractor_id).stop
     when :shutdown
       _log.info("Shutting down")
       ehb.stop_heartbeat_loop
-      `nohup shutdown -t0 -h now &`
+      aws_args[:ec2].instance(extractor_id).stop
     end
   rescue => err
+    _log.error("ERROR: #{err}")
     _log.error(err.backtrace.join("\n"))
   end
 end

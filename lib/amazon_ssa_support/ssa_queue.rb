@@ -6,8 +6,6 @@ require_relative 'ssa_bucket'
 
 module AmazonSsaSupport
   class SsaQueue
-    include LogDecorator::Logging
-
     attr_reader :ssa_bucket_name, :ssa_region, :request_queue_name, :reply_queue_name, :reply_bucket_name, :extractor_id
     attr_reader :request_queue, :reply_queue, :reply_bucket, :reply_prefix, :sqs
 
