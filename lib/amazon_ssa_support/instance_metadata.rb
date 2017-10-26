@@ -1,8 +1,9 @@
 require 'httpclient'
-require 'log_decorator'
 
 module AmazonSsaSupport
   class InstanceMetadata
+    include LogDecorator::Logging
+
     def initialize(version = 'latest')
       @base_url     = 'http://169.254.169.254/'
       @version      = version

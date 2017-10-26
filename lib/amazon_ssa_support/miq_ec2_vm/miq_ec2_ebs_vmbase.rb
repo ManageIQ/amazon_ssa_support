@@ -3,6 +3,8 @@ require_relative '../instance_metadata'
 
 module AmazonSsaSupport
   class MiqEC2EbsVmBase < MiqEC2VmBase
+    include LogDecorator::Logging
+
     attr_reader :volumes
 
     def initialize(ec2_obj, host_instance, ec2)

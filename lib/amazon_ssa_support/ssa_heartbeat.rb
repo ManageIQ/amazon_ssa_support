@@ -7,6 +7,8 @@ require_relative 'ssa_bucket'
 
 module AmazonSsaSupport
   class SsaHeartbeat
+    include LogDecorator::Logging
+
     attr_reader :extractor_id, :heartbeat_prefix
     attr_reader :heartbeat_thread, :heartbeat_interval
 
