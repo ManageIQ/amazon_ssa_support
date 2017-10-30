@@ -19,9 +19,9 @@ module AmazonSsaSupport
 
     def create_snapshot(vol_id)
       _log.info("    Creating snapshot of instance volume #{vol_id}")
-      snap = @ec2.create_snapshot(volume_id: vol_id, description: "SSA extract snapshot for instance: #{@ec2_obj.id}")
+      snap = @ec2.create_snapshot(volume_id: vol_id, description: "Smartstate extract snapshot for instance: #{@ec2_obj.id}")
       snap.wait_until_completed
-      snap.create_tags(tags: [{key: 'Name', value: 'SSA extract snapshot'}])
+      snap.create_tags(tags: [{key: 'Name', value: 'Smartstate extract snapshot'}])
       _log.info("    Snapshot #{snap.id} of instance volume #{vol_id} created!")
       @snapshots << snap
       snap
