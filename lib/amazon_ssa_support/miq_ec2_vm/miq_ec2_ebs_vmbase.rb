@@ -70,8 +70,8 @@ module AmazonSsaSupport
       sleep 2
       @ec2.client.wait_until(:volume_available, volume_ids: [volume.id])
 
-      volume.create_tags(tags: [{ key: 'Name', value: 'SSA extract volume'},
-                                { key: 'Description', value: "SSA extract volume for image: #{@ec2_obj.id}"}])
+      volume.create_tags(tags: [{ key: 'Name', value: 'Smartstate extract volume'},
+                                { key: 'Description', value: "Smartstate extract volume for image: #{@ec2_obj.id}"}])
 
       _log.info("    Volume #{volume.id} of snapshot #{snap_id} created!")
       @volumes << volume
