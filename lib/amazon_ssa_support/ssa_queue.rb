@@ -240,6 +240,7 @@ module AmazonSsaSupport
         @extract_reply[:end_time] = Time.now.utc.to_s # XXX keep this a Time object?
         @ssaq.reply_bucket.object(@req_obj_name).put(body: YAML.dump(@extract_reply, safe: true), content_type: "text/plain")
         reply_msg = {}
+        reply_msg[:job_id] = @extract_reply[:job_id]
         reply_msg[:request_id] = @req_id
         reply_msg[:reply_type] = @extract_reply[:reply_type]
         msg = @ssaq.reply_queue.send_message(message_body: YAML.dump(reply_msg, safe: true))
