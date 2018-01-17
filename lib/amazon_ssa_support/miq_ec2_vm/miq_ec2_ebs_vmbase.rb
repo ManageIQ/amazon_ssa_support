@@ -7,7 +7,7 @@ module AmazonSsaSupport
 
     attr_reader :volumes
 
-    def initialize(ec2_obj, host_instance, ec2, ost)
+    def initialize(ec2_obj, host_instance, ec2, ost = nil)
       super
       @block_device_keys = ebs_ids
       @volumes           = []
