@@ -1,5 +1,6 @@
 require 'yaml'
 require 'aws-sdk'
+require 'active_support/time_with_zone'
 
 require_relative 'ssa_common'
 require_relative 'ssa_bucket'
@@ -53,12 +54,13 @@ module AmazonSsaSupport
     # Send a request to extract data from the image/instance
     # whose ID is ec2_id.
     #
-    def send_extract_request(ec2_id, job_id = nil, categories = nil)
+    def send_extract_request(ec2_id, job_id = nil, categories = nil, ost = nil)
       request = {}
       request[:request_type] = :extract
       request[:ec2_id]       = ec2_id
       request[:job_id]       = job_id
       request[:categories]   = categories
+      request[:scan_data]    = ost&.scanData
       @request_queue.send_message(message_body: YAML.dump(request, safe: true))
     end
 
