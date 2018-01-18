@@ -18,8 +18,9 @@ engines:
     enabled: true
     config:
       languages:
-      - ruby
-      - javascript
+        ruby:
+          count_threshold: 5
+        javascript:
   eslint:
     enabled: false
     channel: "eslint-3"

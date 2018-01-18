@@ -63,7 +63,10 @@ module AmazonSsaSupport
       @ssaq.delete_request(req)
       extract_reply = @ssaq.new_reply(req)
       begin
-        ec2_vm = MiqEC2Vm.new(req[:ec2_id], @my_instance, @ec2)
+        ost = OpenStruct.new
+        ost.scanData = req[:scan_data]
+
+        ec2_vm = MiqEC2Vm.new(req[:ec2_id], @my_instance, @ec2, ost)
         categories = req[:categories] || CATEGORIES
         _log.info("categories: #{categories.inspect}")
         categories.each do |cat|

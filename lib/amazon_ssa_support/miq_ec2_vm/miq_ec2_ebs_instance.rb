@@ -4,7 +4,7 @@ module AmazonSsaSupport
   class MiqEC2EbsInstance < MiqEC2EbsVmBase
     attr_reader :snapshots
 
-    def initialize(ec2_obj, host_instance, ec2)
+    def initialize(ec2_obj, host_instance, ec2, ost = nil)
       super
       @snapshots = []
     end

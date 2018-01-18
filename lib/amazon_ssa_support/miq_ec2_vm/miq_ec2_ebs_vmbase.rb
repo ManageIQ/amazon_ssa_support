@@ -7,7 +7,7 @@ module AmazonSsaSupport
 
     attr_reader :volumes
 
-    def initialize(ec2_obj, host_instance, ec2)
+    def initialize(ec2_obj, host_instance, ec2, ost = nil)
       super
       @block_device_keys = ebs_ids
       @volumes           = []
@@ -58,7 +58,7 @@ module AmazonSsaSupport
       `ls -l #{map_device_prefix}*`.each_line { |l| _log.debug("        #{l.chomp}") } if _log.debug?
       @cfg.each_line { |l| _log.debug("    #{l.chomp}") } if _log.debug?
 
-      @miq_vm = MiqVm.new(@cfg)
+      @miq_vm = MiqVm.new(@cfg, @ost)
     end
 
     def create_volume(snap_id)
