@@ -19,6 +19,7 @@ engines:
     config:
       languages:
       - ruby
+        count_threshold: 5
       - javascript
   eslint:
     enabled: false
