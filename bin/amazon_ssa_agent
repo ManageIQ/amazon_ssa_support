@@ -39,7 +39,7 @@ OptionParser.new do |opts|
 end
 
 require 'yaml'
-aws_args = YAML.load(File.read("#{work_dir}/config.yml"), :safe => true)
+aws_args = YAML.safe_load(File.read("#{work_dir}/config.yml"))
 
 # Logging must be set up very early because log_decorator will apply to
 # all classes after it's required.
