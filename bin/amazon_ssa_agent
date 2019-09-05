@@ -39,7 +39,7 @@ OptionParser.new do |opts|
 end
 
 require 'yaml'
-aws_args = YAML.safe_load(File.read("#{work_dir}/config.yml"))
+aws_args = YAML.load(File.read("#{work_dir}/config.yml"))
 
 # Logging must be set up very early because log_decorator will apply to
 # all classes after it's required.
@@ -70,7 +70,7 @@ begin
   im = AmazonSsaSupport::InstanceMetadata.new
   extractor_id                  = im.metadata('instance-id')
   extractor_doc                 = im.data('dynamic/instance-identity/document')
-  region                        = YAML.load(extractor_doc, :safe => true)["region"]
+  region                        = YAML.load(extractor_doc)["region"]
   aws_args[:extractor_id]       = extractor_id
   aws_args[:region]             = region
   aws_args[:log_prefix]       ||= AmazonSsaSupport::DEFAULT_LOG_PREFIX
