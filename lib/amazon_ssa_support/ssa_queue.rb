@@ -61,7 +61,7 @@ module AmazonSsaSupport
       request[:job_id]       = job_id
       request[:categories]   = categories
       request[:scan_data]    = ost&.scanData
-      @request_queue.send_message(message_body: YAML.dump(request, safe: true))
+      @request_queue.send_message(message_body: YAML.dump(request))
     end
 
     #
@@ -89,7 +89,7 @@ module AmazonSsaSupport
       request = {}
       request[:request_type] = request_type
       request[:extractor_id] = extractor_id
-      @request_queue.send_message(message_body: YAML.dump(request, safe: true))
+      @request_queue.send_message(message_body: YAML.dump(request))
     end
     private :send_ers_request
 
@@ -103,7 +103,7 @@ module AmazonSsaSupport
     end
 
     def get_request(msg)
-      req = YAML.load(msg.body, safe: true)
+      req = YAML.load(msg.body)
       _log.debug("req: #{req.inspect}")
       req[:sqs_msg] = msg
       req
@@ -115,12 +115,12 @@ module AmazonSsaSupport
     #
     def requeue_request(req)
       msg = req[:sqs_msg]
-      body = YAML.load(msg.body, safe: true)
+      body = YAML.load(msg.body)
       if body[:original_req_id]
         @request_queue.send_message(message_body: msg.body, delay_seconds: 10)
       else
         body[:original_req_id] = msg.message_id
-        @request_queue.send_message(message_body: YAML.dump(body, safe: true), delay_seconds: 10)
+        @request_queue.send_message(message_body: YAML.dump(body), delay_seconds: 10)
       end
       msg.delete
     end
@@ -147,7 +147,7 @@ module AmazonSsaSupport
     end
 
     def get_reply(msg)
-      body = YAML.load(msg.body, safe: true)
+      body = YAML.load(msg.body)
 
       case body[:reply_type]
       when :extract
@@ -159,7 +159,7 @@ module AmazonSsaSupport
           $log.error("Reply object #{s3_obj_name} does not exist")
           return nil
         end
-        reply_data = YAML.load(s3_obj.get.body.read, safe: true)
+        reply_data = YAML.load(s3_obj.get.body.read)
         reply_data[:request_id] = req_id
         reply_data[:sqs_msg] = msg
         s3_obj.delete
@@ -187,7 +187,7 @@ module AmazonSsaSupport
       ers_reply[:extractor_id] = @extractor_id
       ers_reply[:request_id]   = req[:original_req_id]
 
-      msg = @reply_queue.send_message(message_body: YAML.dump(ers_reply, safe: true))
+      msg = @reply_queue.send_message(message_body: YAML.dump(ers_reply))
       _log.debug("Sent reply (#{ers_reply[:reply_type]}) #{@reply_queue_name}:#{msg.message_id} to #{@request_queue_name}:#{ers_reply[:request_id]}")
     end
 
@@ -240,12 +240,12 @@ module AmazonSsaSupport
 
       def reply
         @extract_reply[:end_time] = Time.now.utc.to_s # XXX keep this a Time object?
-        @ssaq.reply_bucket.object(@req_obj_name).put(body: YAML.dump(@extract_reply, safe: true), content_type: "text/plain")
+        @ssaq.reply_bucket.object(@req_obj_name).put(body: YAML.dump(@extract_reply), content_type: "text/plain")
         reply_msg = {}
         reply_msg[:job_id] = @extract_reply[:job_id]
         reply_msg[:request_id] = @req_id
         reply_msg[:reply_type] = @extract_reply[:reply_type]
-        msg = @ssaq.reply_queue.send_message(message_body: YAML.dump(reply_msg, safe: true))
+        msg = @ssaq.reply_queue.send_message(message_body: YAML.dump(reply_msg))
         _log.debug("Sent reply (#{@extract_reply[:reply_type]}) #{@ssaq.reply_queue_name}:#{msg.message_id} to #{@ssaq.request_queue_name}:#{@req_id}")
       end
     end
