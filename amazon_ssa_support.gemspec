@@ -20,8 +20,9 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) } - %w[console setup]
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "aws-sdk-sqs",           "~> 1.22.0"
-  spec.add_dependency "aws-sdk-s3",            "~> 1.49.0"
+  spec.add_dependency "aws-sdk-sqs",           "~> 1.0"
+  spec.add_dependency "aws-sdk-ec2",           "~> 1.0"
+  spec.add_dependency "aws-sdk-s3",            "~> 1.0"
   spec.add_dependency "log_decorator",         "~> 0.1"
   spec.add_dependency "manageiq-gems-pending", "~> 0"
   spec.add_dependency "manageiq-smartstate",   "~> 0.2"
