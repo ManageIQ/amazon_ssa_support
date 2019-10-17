@@ -1,5 +1,3 @@
-require 'aws-sdk'
-
 require_relative '../spec_helper'
 require_relative '../aws_ssa_commons'
 

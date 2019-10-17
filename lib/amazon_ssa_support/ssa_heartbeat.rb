@@ -1,5 +1,5 @@
 require 'yaml'
-require 'aws-sdk'
+require 'aws-sdk-s3'
 
 require 'log_decorator'
 require_relative 'ssa_common'

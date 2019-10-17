@@ -1,5 +1,5 @@
 require 'yaml'
-require 'aws-sdk'
+require 'aws-sdk-ec2'
 
 require_relative 'miq_ec2_vm/miq_ec2_vm'
 require_relative 'ssa_queue'
