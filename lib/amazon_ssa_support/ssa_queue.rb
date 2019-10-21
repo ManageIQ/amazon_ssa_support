@@ -1,5 +1,5 @@
 require 'yaml'
-require 'aws-sdk'
+require 'aws-sdk-sqs'
 require 'active_support/time_with_zone'
 
 require_relative 'ssa_common'

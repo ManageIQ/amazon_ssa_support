@@ -59,7 +59,9 @@ require 'log_decorator'
 include LogDecorator::Logging
 LogDecorator.logger = $log
 
-require 'aws-sdk'
+require 'aws-sdk-ec2'
+require 'aws-sdk-sqs'
+require 'aws-sdk-s3'
 require 'amazon_ssa_support'
 require 'manageiq-gems-pending'
 

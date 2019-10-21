@@ -1,3 +1,6 @@
+require 'aws-sdk-sqs'
+require 'aws-sdk-s3'
+
 def config_aws_client_stub
   Aws.config[:sqs] = {
     :stub_responses => {
