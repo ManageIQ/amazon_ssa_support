@@ -5,3 +5,7 @@ source 'https://rubygems.org'
 gemspec
 
 gem "manageiq-gems-pending", :git => "https://github.com/ManageIQ/manageiq-gems-pending.git", :branch => "master"
+
+group :test do
+  gem "manageiq-style"
+end
