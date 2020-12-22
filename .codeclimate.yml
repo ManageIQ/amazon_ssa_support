@@ -1,10 +1,18 @@
-exclude_paths:
-- ".git/"
-- "**.xml"
-- "**.yaml"
-- "**.yml"
-- spec/
-engines:
+prepare:
+  fetch:
+  - url: https://raw.githubusercontent.com/ManageIQ/manageiq-style/master/.rubocop_base.yml
+    path: ".rubocop_base.yml"
+  - url: https://raw.githubusercontent.com/ManageIQ/manageiq-style/master/.rubocop_cc_base.yml
+    path: ".rubocop_cc_base.yml"
+  - url: https://raw.githubusercontent.com/ManageIQ/manageiq-style/master/styles/base.yml
+    path: styles/base.yml
+  - url: https://raw.githubusercontent.com/ManageIQ/manageiq-style/master/styles/cc_base.yml
+    path: styles/cc_base.yml
+plugins:
+  rubocop:
+    enabled: true
+    config: ".rubocop_cc.yml"
+    channel: rubocop-0-82
   brakeman:
     enabled: false
   bundler-audit:
@@ -25,19 +33,10 @@ engines:
     enabled: false
   markdownlint:
     enabled: false
-prepare:
-  fetch:
-  - url: https://raw.githubusercontent.com/ManageIQ/manageiq-style/master/.rubocop_base.yml
-    path: ".rubocop_base.yml"
-  - url: https://raw.githubusercontent.com/ManageIQ/manageiq-style/master/.rubocop_cc_base.yml
-    path: ".rubocop_cc_base.yml"
-ratings:
-  paths:
-  - Gemfile.lock
-  - "**.rake"
-  - "**.rb"
-plugins:
-  rubocop:
-    enabled: true
-    config: ".rubocop_cc.yml"
-    channel: rubocop-0-82
+exclude_patterns:
+- ".git/"
+- "**.xml"
+- "**.yaml"
+- "**.yml"
+- spec/
+version: '2'
