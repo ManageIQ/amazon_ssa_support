@@ -25,7 +25,7 @@ plugins:
       languages:
         ruby:
           count_threshold: 5
-        javascript: 
+        javascript:
   eslint:
     enabled: false
     channel: eslint-3
