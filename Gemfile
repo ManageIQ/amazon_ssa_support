@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 # Specify your gem's dependencies in amazon_ssa_support.gemspec
 gemspec
 
-gem "manageiq-gems-pending", :git => "https://github.com/ManageIQ/manageiq-gems-pending.git", :branch => "lasker"
+gem "manageiq-gems-pending", :git => "https://github.com/ManageIQ/manageiq-gems-pending.git", :branch => "morphy"
 
 group :test do
   gem "manageiq-style"
