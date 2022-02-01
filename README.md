@@ -4,7 +4,6 @@
 [![Build Status](https://travis-ci.org/ManageIQ/amazon_ssa_support.svg)](https://travis-ci.com/github/ManageIQ/amazon_ssa_support)
 [![Code Climate](https://codeclimate.com/github/ManageIQ/amazon_ssa_support.svg)](https://codeclimate.com/github/ManageIQ/amazon_ssa_support)
 [![Test Coverage](https://codeclimate.com/github/ManageIQ/amazon_ssa_support/badges/coverage.svg)](https://codeclimate.com/github/ManageIQ/amazon_ssa_support/coverage)
-[![Security](https://hakiri.io/github/ManageIQ/amazon_ssa_support/master.svg)](https://hakiri.io/github/ManageIQ/amazon_ssa_support/master)
 
 [![Chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ManageIQ/amazon_ssa_support?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
