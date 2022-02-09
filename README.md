@@ -1,7 +1,7 @@
 # AmazonSsaSupport
 
 [![Gem Version](https://badge.fury.io/rb/amazon_ssa_support.svg)](http://badge.fury.io/rb/amazon_ssa_support)
-[![Build Status](https://travis-ci.org/ManageIQ/amazon_ssa_support.svg)](https://travis-ci.com/github/ManageIQ/amazon_ssa_support)
+[![CI](https://github.com/ManageIQ/amazon_ssa_support/actions/workflows/ci.yaml/badge.svg)](https://github.com/ManageIQ/amazon_ssa_support/actions/workflows/ci.yaml)
 [![Code Climate](https://codeclimate.com/github/ManageIQ/amazon_ssa_support.svg)](https://codeclimate.com/github/ManageIQ/amazon_ssa_support)
 [![Test Coverage](https://codeclimate.com/github/ManageIQ/amazon_ssa_support/badges/coverage.svg)](https://codeclimate.com/github/ManageIQ/amazon_ssa_support/coverage)
 
