@@ -3,7 +3,7 @@ require_relative '../instance_metadata'
 
 module AmazonSsaSupport
   class MiqEC2EbsVmBase < MiqEC2VmBase
-    include LogDecorator::Logging
+    include Logging
 
     attr_reader :volumes
 

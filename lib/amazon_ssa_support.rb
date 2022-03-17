@@ -1,8 +1,7 @@
 require 'manageiq-smartstate'
 
-require 'log_decorator'
-
 require 'amazon_ssa_support/version'
+require 'amazon_ssa_support/logging'
 require 'amazon_ssa_support/ssa_common'
 require 'amazon_ssa_support/instance_metadata'
 require 'amazon_ssa_support/ssa_bucket.rb'
