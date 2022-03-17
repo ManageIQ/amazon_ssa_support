@@ -23,7 +23,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "aws-sdk-sqs",           "~> 1.0"
   spec.add_dependency "aws-sdk-ec2",           "~> 1.0"
   spec.add_dependency "aws-sdk-s3",            "~> 1.0"
-  spec.add_dependency "log_decorator",         "~> 0.1"
   spec.add_dependency "manageiq-gems-pending", "~> 0"
   spec.add_dependency "manageiq-smartstate",   "~> 0.2"
 

@@ -1,9 +1,6 @@
 require_relative '../spec_helper'
 require_relative '../aws_ssa_commons'
 
-::Module.include(LogDecorator::Logging::ClassMethods)
-include LogDecorator::Logging
-
 describe AmazonSsaSupport::MiqEC2EbsInstance do
   before :each do
     @eb2_obj = mocked_ebs_instance('i-mocked-1')

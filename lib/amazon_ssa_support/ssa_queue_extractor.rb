@@ -6,7 +6,7 @@ require_relative 'ssa_queue'
 
 module AmazonSsaSupport
   class SsaQueueExtractor
-    include LogDecorator::Logging
+    include Logging
 
     CATEGORIES = %w(accounts services software system).freeze
     attr_reader :my_instance, :ssaq

@@ -41,8 +41,6 @@ end
 require 'yaml'
 aws_args = YAML.load(File.read("#{work_dir}/config.yml"))
 
-# Logging must be set up very early because log_decorator will apply to
-# all classes after it's required.
 require 'amazon_ssa_support/rolling_s3_logger'
 log_filename  = File.join(work_dir, "extract.log")
 log_max_size  = (log_max_size || aws_args[:log_max_size] || 1_048_576).to_i
@@ -53,11 +51,6 @@ at_exit do
   $log.roll
   Dir.glob("#{log_filename}*").each { |f| File.delete(f) }
 end
-
-require 'log_decorator'
-::Module.include(LogDecorator::Logging::ClassMethods)
-include LogDecorator::Logging
-LogDecorator.logger = $log
 
 require 'aws-sdk-ec2'
 require 'aws-sdk-sqs'
@@ -99,7 +92,7 @@ begin
   #
   eqe = AmazonSsaSupport::SsaQueueExtractor.new(aws_args)
 
-  _log.info("Agent starts to process requests ...")
+  $log.info("Agent starts to process requests ...")
 
   begin
     exit_code = eqe.extract_loop(timeout)
@@ -109,19 +102,19 @@ begin
     #
     case exit_code
     when :exit
-      _log.info("Exiting")
+      $log.info("Exiting")
       ehb.stop_heartbeat_loop
     when :reboot
-      _log.info("Rebooting")
+      $log.info("Rebooting")
       ehb.stop_heartbeat_loop
       aws_args[:ec2].instance(extractor_id).stop
     when :shutdown
-      _log.info("Shutting down")
+      $log.info("Shutting down")
       ehb.stop_heartbeat_loop
       aws_args[:ec2].instance(extractor_id).stop
     end
   rescue => err
-    _log.error("ERROR: #{err}")
-    _log.error(err.backtrace.join("\n"))
+    $log.error("ERROR: #{err}")
+    $log.error(err.backtrace.join("\n"))
   end
 end

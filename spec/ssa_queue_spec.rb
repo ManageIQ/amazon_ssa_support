@@ -1,9 +1,6 @@
 require_relative 'spec_helper'
 require_relative 'aws_ssa_commons'
 
-::Module.include(LogDecorator::Logging::ClassMethods)
-include LogDecorator::Logging
-
 describe AmazonSsaSupport::SsaQueue do
   before(:each) do
     config_aws_client_stub

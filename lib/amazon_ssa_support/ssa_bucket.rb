@@ -2,7 +2,7 @@ require_relative 'ssa_common'
 
 module AmazonSsaSupport
   module SsaBucket
-    include LogDecorator::Logging
+    include Logging
 
     def self.get(arg_hash)
       raise ArgumentError, "Bucket and region must be specified." unless arg_hash[:ssa_bucket] && arg_hash[:region]
