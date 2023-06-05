@@ -56,7 +56,7 @@ require 'aws-sdk-ec2'
 require 'aws-sdk-sqs'
 require 'aws-sdk-s3'
 require 'amazon_ssa_support'
-require 'manageiq-gems-pending'
+require 'manageiq/gems/pending'
 
 begin
   #
