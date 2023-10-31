@@ -1,3 +1,4 @@
+require 'manageiq/gems/pending'
 require 'MiqVm/MiqVm'
 
 module AmazonSsaSupport
