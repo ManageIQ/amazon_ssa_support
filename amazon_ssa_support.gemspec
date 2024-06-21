@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "aws-sdk-ec2",           "~> 1.0"
   spec.add_dependency "aws-sdk-s3",            "~> 1.0"
   spec.add_dependency "manageiq-gems-pending", "~> 0"
-  spec.add_dependency "manageiq-smartstate",   "~> 0.2"
+  spec.add_dependency "manageiq-smartstate",   "~> 0.10.0"
 
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "handsoap",       "= 0.2.5.5"
