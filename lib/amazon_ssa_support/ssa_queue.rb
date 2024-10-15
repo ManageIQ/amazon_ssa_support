@@ -1,5 +1,7 @@
 require 'yaml'
 require 'aws-sdk-sqs'
+require 'active_support/deprecation'
+require 'active_support/deprecator'
 require 'active_support/time_with_zone'
 
 require_relative 'ssa_common'
