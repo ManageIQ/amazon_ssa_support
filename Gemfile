@@ -4,7 +4,7 @@ source 'https://rubygems.org'
 gemspec
 
 gem "handsoap", "=0.2.5.5", :require => false, :source => "https://rubygems.manageiq.org"
-gem "manageiq-gems-pending", :git => "https://github.com/ManageIQ/manageiq-gems-pending.git", :branch => "radjabov"
+gem "manageiq-gems-pending", :git => "https://github.com/ManageIQ/manageiq-gems-pending.git", :branch => "master"
 
 minimum_version =
   case ENV['TEST_RAILS_VERSION']
