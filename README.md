@@ -1,7 +1,7 @@
 # AmazonSsaSupport
 
 [![Gem Version](https://badge.fury.io/rb/amazon_ssa_support.svg)](http://badge.fury.io/rb/amazon_ssa_support)
-[![CI](https://github.com/ManageIQ/amazon_ssa_support/actions/workflows/ci.yaml/badge.svg?branch=master)](https://github.com/ManageIQ/amazon_ssa_support/actions/workflows/ci.yaml)
+[![CI](https://github.com/ManageIQ/amazon_ssa_support/actions/workflows/ci.yaml/badge.svg?branch=tal)](https://github.com/ManageIQ/amazon_ssa_support/actions/workflows/ci.yaml)
 
 [![Chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/ManageIQ/amazon_ssa_support?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
